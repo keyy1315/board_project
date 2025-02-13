@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: board_project
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://1.248.227.176:3306/edu02
+    username: edu02_user
+    password: '!qa2wS'
+
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: org.example.board_project.model.entity, org.example.board_project.model.dto.sqlDTO
