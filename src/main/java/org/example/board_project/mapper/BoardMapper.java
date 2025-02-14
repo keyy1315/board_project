@@ -1,14 +1,17 @@
 package org.example.board_project.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.example.board_project.model.dto.sqlDTO.searchFilterDTO;
+import org.example.board_project.model.dto.requestDTO.BoardListRequestDTO;
+import org.example.board_project.model.dto.requestDTO.WriteBoardRequestDTO;
 import org.example.board_project.model.entity.Board;
 
 import java.util.List;
 
 @Mapper
 public interface BoardMapper {
-    List<Board> findAll();
+    int countBoard(BoardListRequestDTO sqlDTO);
+
+    List<Board> findWithFilter(BoardListRequestDTO sqlDTO);
 
     int countBoard(searchFilterDTO sqlDTO);
 

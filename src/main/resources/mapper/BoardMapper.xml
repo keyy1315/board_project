@@ -4,32 +4,73 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.example.board_project.mapper.BoardMapper">
-    <select id="findAll" resultType="Board">
-        SELECT * FROM bt_tb_board
-    </select>
+<!--    <select id="findAll" resultType="Board">-->
+<!--        SELECT * FROM bt_tb_board-->
+<!--    </select>-->
 
-    <select id="countBoard" parameterType="searchFilterDTO" resultType="int">
+<!-- searchFilterDTO.searchCode[all(전체), writer_nm(작성자명), title(제목), cont(내용), tiCont(제목+내용)]-->
+    <select id="countBoard" parameterType="BoardListRequestDTO" resultType="int">
         SELECT COUNT(*) FROM bt_tb_board
         WHERE 1=1
         <if test="categoryCode != null">
             AND category_cd = #{categoryCode}
         </if>
         <if test="search != null">
-            AND #{searchCode} LIKE CONCAT('%', #{search}, '%')
+            <choose>
+                <when test="searchCode eq 'all'">
+                    AND CONCAT(title, cont, writer_nm) LIKE CONCAT('%', #{search}, '%')
+                </when>
+                <when test="searchCode eq 'tiCont'">
+                    AND CONCAT(title, cont) LIKE CONCAT('%', #{search}, '%')
+                </when>
+                <otherwise>
+                    AND
+                    <choose>
+                        <when test="searchCode eq 'title'"> title </when>
+                        <when test="searchCode eq 'cont'"> cont </when>
+                        <when test="searchCode eq 'writer_nm'"> writer_nm </when>
+                        <otherwise> title </otherwise>
+                    </choose>
+                    LIKE CONCAT('%', #{search}, '%')
+                </otherwise>
+            </choose>
         </if>
     </select>
 
-    <select id="findWithFilter" parameterType="searchFilterDTO" resultType="Board">
+
+    <select id="findWithFilter" parameterType="BoardListRequestDTO" resultType="Board">
         SELECT * FROM bt_tb_board
         WHERE 1=1
         <if test="categoryCode != null">
             AND category_cd = #{categoryCode}
         </if>
         <if test="search != null">
-            AND #{searchCode} LIKE CONCAT('%', #{search}, '%')
+            <choose>
+                <when test="searchCode eq 'all'">
+                    AND CONCAT(title, cont, writer_nm) LIKE CONCAT('%', #{search}, '%')
+                </when>
+                <when test="searchCode eq 'tiCont'">
+                    AND CONCAT(title, cont) LIKE CONCAT('%', #{search}, '%')
+                </when>
+                <otherwise>
+                    AND
+                    <choose>
+                        <when test="searchCode eq 'title'"> title </when>
+                        <when test="searchCode eq 'cont'"> cont </when>
+                        <when test="searchCode eq 'writer_nm'"> writer_nm </when>
+                        <otherwise> title </otherwise>
+                    </choose>
+                    LIKE CONCAT('%', #{search}, '%')
+                </otherwise>
+            </choose>
         </if>
         <if test="sortCode != null">
-            GROUP BY #{sortCode} desc
+            ORDER BY
+            <choose>
+                <when test="sortCode eq 'reg_dt'"> IFNULL(mod_dt, reg_dt) DESC </when>
+                <otherwise> ${sortCode} DESC </otherwise>
+            </choose>
         </if>
+        LIMIT #{size} OFFSET #{offset}
     </select>
 </mapper>

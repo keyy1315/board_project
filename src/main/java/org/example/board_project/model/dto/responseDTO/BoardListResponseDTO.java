@@ -9,6 +9,6 @@ import java.util.List;
 @Builder
 @Getter
 public class BoardListResponseDTO {
-    private List<Board> board;
+    private List<BoardResponseDTO> boards;
     private int total;
 }

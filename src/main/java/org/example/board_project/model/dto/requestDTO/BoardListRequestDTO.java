@@ -1,4 +1,4 @@
-package org.example.board_project.model.dto.sqlDTO;
+package org.example.board_project.model.dto.requestDTO;
 
 
 import lombok.AllArgsConstructor;
@@ -9,11 +9,14 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 /**
- * searchCode - []
+ * searchCode - [all, writer_nm, title, cont, tiCont]
+ * sortCode - [view_cnt, reg_dt]
  */
-public class searchFilterDTO {
+public class BoardListRequestDTO {
     private String categoryCode;
     private String searchCode;
     private String search;
     private String sortCode;
+    private int offset;
+    private int size;
 }
