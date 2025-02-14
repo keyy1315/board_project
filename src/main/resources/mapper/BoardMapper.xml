@@ -10,26 +10,28 @@
 
 <!-- searchFilterDTO.searchCode[all(전체), writer_nm(작성자명), title(제목), cont(내용), tiCont(제목+내용)]-->
     <select id="countBoard" parameterType="BoardListRequestDTO" resultType="int">
-        SELECT COUNT(*) FROM bt_tb_board
+        SELECT COUNT(*) FROM bt_tb_board as b
+        INNER JOIN bt_tb_comm_code as c
+        ON b.category_cd = c.comm_cd
         WHERE 1=1
         <if test="categoryCode != null">
-            AND category_cd = #{categoryCode}
+            AND c.comm_cd_nm = #{categoryCode}
         </if>
         <if test="search != null">
             <choose>
-                <when test="searchCode eq 'all'">
-                    AND CONCAT(title, cont, writer_nm) LIKE CONCAT('%', #{search}, '%')
+                <when test="searchCode eq 'all' or searchCode eq null">
+                    AND CONCAT(b.title, b.cont, b.writer_nm) LIKE CONCAT('%', #{search}, '%')
                 </when>
                 <when test="searchCode eq 'tiCont'">
-                    AND CONCAT(title, cont) LIKE CONCAT('%', #{search}, '%')
+                    AND CONCAT(b.title, b.cont) LIKE CONCAT('%', #{search}, '%')
                 </when>
                 <otherwise>
                     AND
                     <choose>
-                        <when test="searchCode eq 'title'"> title </when>
-                        <when test="searchCode eq 'cont'"> cont </when>
-                        <when test="searchCode eq 'writer_nm'"> writer_nm </when>
-                        <otherwise> title </otherwise>
+                        <when test="searchCode eq 'title'"> b.title </when>
+                        <when test="searchCode eq 'cont'"> b.cont </when>
+                        <when test="searchCode eq 'writer_nm'"> b.writer_nm </when>
+                        <otherwise> b.title </otherwise>
                     </choose>
                     LIKE CONCAT('%', #{search}, '%')
                 </otherwise>
@@ -39,26 +41,28 @@
 
 
     <select id="findWithFilter" parameterType="BoardListRequestDTO" resultType="Board">
-        SELECT * FROM bt_tb_board
+        SELECT * FROM bt_tb_board as b
+        INNER JOIN bt_tb_comm_code as c
+        ON b.category_cd = c.comm_cd
         WHERE 1=1
         <if test="categoryCode != null">
-            AND category_cd = #{categoryCode}
+            AND c.comm_cd_nm = #{categoryCode}
         </if>
         <if test="search != null">
             <choose>
-                <when test="searchCode eq 'all'">
-                    AND CONCAT(title, cont, writer_nm) LIKE CONCAT('%', #{search}, '%')
+                <when test="searchCode eq 'all' or searchCode eq null">
+                    AND CONCAT(b.title, b.cont, b.writer_nm) LIKE CONCAT('%', #{search}, '%')
                 </when>
                 <when test="searchCode eq 'tiCont'">
-                    AND CONCAT(title, cont) LIKE CONCAT('%', #{search}, '%')
+                    AND CONCAT(b.title, b.cont) LIKE CONCAT('%', #{search}, '%')
                 </when>
                 <otherwise>
                     AND
                     <choose>
-                        <when test="searchCode eq 'title'"> title </when>
-                        <when test="searchCode eq 'cont'"> cont </when>
-                        <when test="searchCode eq 'writer_nm'"> writer_nm </when>
-                        <otherwise> title </otherwise>
+                        <when test="searchCode eq 'title'"> b.title </when>
+                        <when test="searchCode eq 'cont'"> b.cont </when>
+                        <when test="searchCode eq 'writer_nm'"> b.writer_nm </when>
+                        <otherwise> b.title </otherwise>
                     </choose>
                     LIKE CONCAT('%', #{search}, '%')
                 </otherwise>
@@ -67,9 +71,16 @@
         <if test="sortCode != null">
             ORDER BY
             <choose>
-                <when test="sortCode eq 'reg_dt'"> IFNULL(mod_dt, reg_dt) DESC </when>
-                <otherwise> ${sortCode} DESC </otherwise>
+                <when test="sortCode eq 'reg_dt'">
+                    b.reg_dt DESC
+                </when>
+                <otherwise>
+                    ${sortCode} DESC
+                </otherwise>
             </choose>
+        </if>
+        <if test="sortCode == null">
+            ORDER BY b.reg_dt DESC
         </if>
         LIMIT #{size} OFFSET #{offset}
     </select>
