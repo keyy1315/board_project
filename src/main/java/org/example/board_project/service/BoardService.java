@@ -22,28 +22,19 @@ public class BoardService {
     private final BoardMapper boardMapper;
 
     /**
-     * @param category_cd - 카테고리 코드
-     * @param searchCode   - 검색 조건
-     * @param search       - 검색어
-     * @param sortCode     - 정렬조건
-     * @param page_no      - 페이지 번호
-     * @param page_size    - 게시글 출력 개수
+     * @param dto                   - [category_cd, searchCode, search, sortCode, offset, size]
+     *                              - category_cd  : 카테고리 코드
+     *                              - searchCode   : 검색 조건
+     *                              - search       : 검색어
+     *                              - sortCode     : 정렬조건
+     *                              - offset       : 데이터 출력 시작 인덱스 (ex: offset=3, 4번부터 출력)
+     *                              - size         : 게시글 출력 개수
      * @return BoardListResponseDTO - [BoardResponseDTO 의 List, 게시글 총 개수]
      * BoardResponseDTO (비밀번호 컬럼이 없는 DTO) 에 게시글의 정보를 담아
      * BoardListResponseDTO 에 찾은 게시글의 총 개수와 함께 List type 으로 담아 반환함
      */
-    public BoardListResponseDTO findBoardList(
-            String category_cd,
-            String searchCode,
-            String search,
-            String sortCode,
-            int page_no,
-            int page_size) {
-
-        int offset = (page_no - 1) * page_size;
-
-        BoardListRequestDTO sqlDTO = new BoardListRequestDTO(category_cd, searchCode, search, sortCode, offset, page_size);
-        List<Board> boards = boardMapper.findWithFilter(sqlDTO);
+    public BoardListResponseDTO findBoardList(BoardListRequestDTO dto) {
+        List<Board> boards = boardMapper.findWithFilter(dto);
 
         if (boards.isEmpty()) {
             return BoardListResponseDTO.builder()
@@ -59,12 +50,12 @@ public class BoardService {
         }
         return BoardListResponseDTO.builder()
                 .boards(newBoards)
-                .total(boardMapper.countBoard(sqlDTO))
+                .total(boardMapper.countBoard(dto))
                 .build();
     }
 
     /**
-     * @param dto - [작성자명, 비밀번호, 제목, 내용, 카테고리 코드, 게시글 번호]
+     * @param dto               - [작성자명, 비밀번호, 제목, 내용, 카테고리 코드, 게시글 번호]
      * @return BoardResponseDTO - [게시글 번호, 카데고리 코드, 제목, 내용, 작성자명, 조회수, 작성 날짜, 수정 날짜]
      */
     public BoardResponseDTO saveBoard(WriteBoardRequestDTO dto) {
@@ -81,7 +72,7 @@ public class BoardService {
     }
 
     /**
-     * @param no - 게시글 번호
+     * @param no                - 게시글 번호
      * @return BoardResponseDTO - [게시글 번호, 카데고리 코드, 제목, 내용, 작성자명, 조회수, 작성 날짜, 수정 날짜]
      */
     public BoardResponseDTO findBoard(int no) {
@@ -97,7 +88,7 @@ public class BoardService {
     }
 
     /**
-     * @param dto - [작성자명, 비밀번호, 제목, 내용, 카테고리 코드, 게시글 번호]
+     * @param dto               - [작성자명, 비밀번호, 제목, 내용, 카테고리 코드, 게시글 번호]
      * @return BoardResponseDTO - [게시글 번호, 카데고리 코드, 제목, 내용, 작성자명, 조회수, 작성 날짜, 수정 날짜]
      */
     public BoardResponseDTO updateBoard(WriteBoardRequestDTO dto) {
@@ -136,7 +127,7 @@ public class BoardService {
     }
 
     /**
-     * @param board - Entity
+     * @param board             - Entity
      * @return BoardResponseDTO - [게시글 번호, 카데고리 코드, 제목, 내용, 작성자명, 조회수, 작성 날짜, 수정 날짜]
      * DB에 담긴 비밀번호를 프론트에 넘기지 않기 위해 Board Entity 를 DTO 로 변환하는 메소드
      */
@@ -153,26 +144,30 @@ public class BoardService {
                 .build();
     }
 
+    /**
+     * @param dto - WriteBoardRequestDTO
+     * 클라이언트에게 받은 데이터에 빈 값이 있는지 확인하는 메소드
+     * 빈 값이 있다면 NullPointerException 반환한다.
+     */
     private void DTONullChecker(WriteBoardRequestDTO dto) {
         if (!StringUtils.hasText(dto.getWriter_nm())) throw new IllegalArgumentException("writer name is empty");
         if (!StringUtils.hasText(dto.getPassword())) throw new IllegalArgumentException("password is empty");
-        if (!StringUtils.hasText(dto.getCt_cd())) throw new IllegalArgumentException("category code is empty");
+        if (!StringUtils.hasText(dto.getCategory_cd())) throw new IllegalArgumentException("category code is empty");
         if (!StringUtils.hasText(dto.getCont())) throw new IllegalArgumentException("content is empty");
         if (!StringUtils.hasText(dto.getTitle())) throw new IllegalArgumentException("title is empty");
     }
 
-
+    /**
+     * @param no       - 게시글 번호
+     * @param password - 게시글 비밀번호
+     * @return boolean - 비밀번호 일치 여부
+     * 비밀번호에 빈 값이 들어오면 NullPointerException 반환
+     * DB 에 저장된 비밀번호와 일치하다면 true 반환
+     */
     public boolean authBoard(int no, String password) {
         if (!StringUtils.hasText(password)) throw new IllegalArgumentException("password is empty");
         String db_pwd = boardMapper.getBoardPassword(no);
 
-        if (db_pwd.equals(password)) {
-            return true;
-        } else {
-            throw new BoardException(
-                    ErrorCode.NO_AUTHORITY.getHttpStatus(),
-                    ErrorCode.NO_AUTHORITY.getMessage()
-            );
-        }
+        return db_pwd.equals(password);
     }
 }

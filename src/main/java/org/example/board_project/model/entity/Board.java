@@ -4,15 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.type.Alias;
 
 import java.time.LocalDateTime;
 
+/**
+ * MyBatis 반환 객체 타입 정의
+ */
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Builder
-@Alias("Board")
 public class Board {
     private int board_no;
     private String category_cd;

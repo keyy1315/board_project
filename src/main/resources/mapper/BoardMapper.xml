@@ -4,19 +4,18 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.example.board_project.mapper.BoardMapper">
-<!--    <select id="findAll" resultType="Board">-->
-<!--        SELECT * FROM bt_tb_board-->
-<!--    </select>-->
-
-<!-- searchFilterDTO.searchCode[all(전체), writer_nm(작성자명), title(제목), cont(내용), tiCont(제목+내용)]-->
     <select id="countBoard" parameterType="BoardListRequestDTO" resultType="int">
         SELECT COUNT(*) FROM bt_tb_board as b
+<!--        join 조건        -->
         INNER JOIN bt_tb_comm_code as c
         ON b.category_cd = c.comm_cd
+<!--        조건문 결과에 따라 곧바로 and 가 입력되어도 sql 오류가 나지 않게 하기 위한 always true 구문 -->
         WHERE 1=1
+<!--        카테고리 코드 필터 -->
         <if test="category_cd != null">
             AND c.comm_cd_nm = #{category_cd}
         </if>
+<!--        검색어 필터 -->
         <if test="search != null">
             <choose>
                 <when test="searchCode eq 'all' or searchCode eq null">
@@ -28,10 +27,10 @@
                 <otherwise>
                     AND
                     <choose>
-                        <when test="searchCode eq 'title'"> b.title </when>
-                        <when test="searchCode eq 'cont'"> b.cont </when>
-                        <when test="searchCode eq 'writer_nm'"> b.writer_nm </when>
-                        <otherwise> b.title </otherwise>
+                        <when test="searchCode eq 'title'">b.title</when>
+                        <when test="searchCode eq 'cont'">b.cont</when>
+                        <when test="searchCode eq 'writer_nm'">b.writer_nm</when>
+                        <otherwise>b.title</otherwise>
                     </choose>
                     LIKE CONCAT('%', #{search}, '%')
                 </otherwise>
@@ -42,12 +41,16 @@
 
     <select id="findWithFilter" parameterType="BoardListRequestDTO" resultType="Board">
         SELECT * FROM bt_tb_board as b
+        <!-- join 조건 -->
         INNER JOIN bt_tb_comm_code as c
         ON b.category_cd = c.comm_cd
+        <!-- 조건문 결과에 따라 곧바로 and 가 입력되어도 sql 오류가 나지 않게 하기 위한 always true 구문 -->
         WHERE 1=1
+<!--        카테고리 필터 -->
         <if test="category_cd != null">
             AND c.comm_cd_nm = #{category_cd}
         </if>
+<!--        검색어 필터 -->
         <if test="search != null">
             <choose>
                 <when test="searchCode eq 'all' or searchCode eq null">
@@ -59,15 +62,16 @@
                 <otherwise>
                     AND
                     <choose>
-                        <when test="searchCode eq 'title'"> b.title </when>
-                        <when test="searchCode eq 'cont'"> b.cont </when>
-                        <when test="searchCode eq 'writer_nm'"> b.writer_nm </when>
-                        <otherwise> b.title </otherwise>
+                        <when test="searchCode eq 'title'">b.title</when>
+                        <when test="searchCode eq 'cont'">b.cont</when>
+                        <when test="searchCode eq 'writer_nm'">b.writer_nm</when>
+                        <otherwise>b.title</otherwise>
                     </choose>
                     LIKE CONCAT('%', #{search}, '%')
                 </otherwise>
             </choose>
         </if>
+<!--        정렬 필터 -->
         <if test="sortCode != null">
             ORDER BY
             <choose>
@@ -82,32 +86,45 @@
         <if test="sortCode == null">
             ORDER BY b.reg_dt DESC
         </if>
+<!--        페이지네이션 -->
         LIMIT #{size} OFFSET #{offset}
     </select>
+
+<!-- 게시글 저장 -->
     <insert id="saveBoard" parameterType="WriteBoardRequestDTO" useGeneratedKeys="true" keyProperty="boardNo">
         INSERT INTO bt_tb_board
         (category_cd, title, cont, writer_nm, password, view_cnt, reg_dt)
         VALUES
         (#{ct_cd}, #{title}, #{cont}, #{writer_nm}, #{password}, 0, NOW())
     </insert>
+
+<!-- 게시글 수정 -->
     <update id="updateBoard" parameterType="WriteBoardRequestDTO">
         UPDATE bt_tb_board
         SET title = #{title}, cont = #{cont}, writer_nm = #{writer_nm}, mod_dt = NOW(), category_cd = #{ct_cd}
         WHERE board_no = #{boardNo}
     </update>
+
+<!-- 게시글 조회 -->
     <select id="findBoard" parameterType="int">
         SELECT * FROM bt_tb_board
         WHERE board_no = #{boardNo}
     </select>
+
+<!-- 조회수 증가 -->
     <update id="IncrementViewCnt" parameterType="int">
         UPDATE bt_tb_board
         SET view_cnt = view_cnt + 1
         WHERE board_no = #{boardNo}
     </update>
+
+
     <delete id="deleteBoard" parameterType="int">
         DELETE FROM bt_tb_board
         WHERE board_no = #{BoardNo}
     </delete>
+
+
     <select id="getBoardPassword" parameterType="int" resultType="string">
         SELECT password FROM bt_tb_board
         WHERE board_no = #{BoardNo}
