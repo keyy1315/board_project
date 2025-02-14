@@ -14,8 +14,8 @@
         INNER JOIN bt_tb_comm_code as c
         ON b.category_cd = c.comm_cd
         WHERE 1=1
-        <if test="categoryCode != null">
-            AND c.comm_cd_nm = #{categoryCode}
+        <if test="category_cd != null">
+            AND c.comm_cd_nm = #{category_cd}
         </if>
         <if test="search != null">
             <choose>
@@ -45,8 +45,8 @@
         INNER JOIN bt_tb_comm_code as c
         ON b.category_cd = c.comm_cd
         WHERE 1=1
-        <if test="categoryCode != null">
-            AND c.comm_cd_nm = #{categoryCode}
+        <if test="category_cd != null">
+            AND c.comm_cd_nm = #{category_cd}
         </if>
         <if test="search != null">
             <choose>

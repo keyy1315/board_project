@@ -22,7 +22,7 @@ public class BoardService {
     private final BoardMapper boardMapper;
 
     /**
-     * @param categoryCode - 카테고리 코드
+     * @param category_cd - 카테고리 코드
      * @param searchCode   - 검색 조건
      * @param search       - 검색어
      * @param sortCode     - 정렬조건
@@ -33,7 +33,7 @@ public class BoardService {
      * BoardListResponseDTO 에 찾은 게시글의 총 개수와 함께 List type 으로 담아 반환함
      */
     public BoardListResponseDTO findBoardList(
-            String categoryCode,
+            String category_cd,
             String searchCode,
             String search,
             String sortCode,
@@ -42,7 +42,7 @@ public class BoardService {
 
         int offset = (page_no - 1) * page_size;
 
-        BoardListRequestDTO sqlDTO = new BoardListRequestDTO(categoryCode, searchCode, search, sortCode, offset, page_size);
+        BoardListRequestDTO sqlDTO = new BoardListRequestDTO(category_cd, searchCode, search, sortCode, offset, page_size);
         List<Board> boards = boardMapper.findWithFilter(sqlDTO);
 
         if (boards.isEmpty()) {

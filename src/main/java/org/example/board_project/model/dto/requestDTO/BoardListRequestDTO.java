@@ -8,12 +8,13 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 @Getter
-/**
- * searchCode - [all, writer_nm, title, cont, tiCont]
- * sortCode - [view_cnt, reg_dt]
+/*
+  searchCode - [all, writer_nm, title, cont, tiCont]
+  sortCode - [view_cnt, reg_dt]
+  category_cd - [전체, 공지, 중요, 일반]
  */
 public class BoardListRequestDTO {
-    private String categoryCode;
+    private String category_cd;
     private String searchCode;
     private String search;
     private String sortCode;
