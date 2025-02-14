@@ -13,7 +13,15 @@ public interface BoardMapper {
 
     List<Board> findWithFilter(BoardListRequestDTO sqlDTO);
 
-    int countBoard(searchFilterDTO sqlDTO);
+    int saveBoard(WriteBoardRequestDTO dto);
 
-    List<Board> findWithFilter(searchFilterDTO sqlDTO);
+    Board findBoard(int no);
+
+    int updateBoard(WriteBoardRequestDTO dto);
+
+    int IncrementViewCnt(int no);
+
+    int deleteBoard(int no);
+
+    String getBoardPassword(int no);
 }

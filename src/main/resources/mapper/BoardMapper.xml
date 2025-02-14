@@ -73,4 +73,32 @@
         </if>
         LIMIT #{size} OFFSET #{offset}
     </select>
+    <insert id="saveBoard" parameterType="WriteBoardRequestDTO" useGeneratedKeys="true" keyProperty="boardNo">
+        INSERT INTO bt_tb_board
+        (category_cd, title, cont, writer_nm, password, view_cnt, reg_dt)
+        VALUES
+        (#{ct_cd}, #{title}, #{cont}, #{writer_nm}, #{password}, 0, NOW())
+    </insert>
+    <update id="updateBoard" parameterType="WriteBoardRequestDTO">
+        UPDATE bt_tb_board
+        SET title = #{title}, cont = #{cont}, writer_nm = #{writer_nm}, mod_dt = NOW(), category_cd = #{ct_cd}
+        WHERE board_no = #{boardNo}
+    </update>
+    <select id="findBoard" parameterType="int">
+        SELECT * FROM bt_tb_board
+        WHERE board_no = #{boardNo}
+    </select>
+    <update id="IncrementViewCnt" parameterType="int">
+        UPDATE bt_tb_board
+        SET view_cnt = view_cnt + 1
+        WHERE board_no = #{boardNo}
+    </update>
+    <delete id="deleteBoard" parameterType="int">
+        DELETE FROM bt_tb_board
+        WHERE board_no = #{BoardNo}
+    </delete>
+    <select id="getBoardPassword" parameterType="int" resultType="string">
+        SELECT password FROM bt_tb_board
+        WHERE board_no = #{BoardNo}
+    </select>
 </mapper>
