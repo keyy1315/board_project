@@ -4,6 +4,9 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
+/*
+ * custom Exception
+ */
 public class BoardException extends RuntimeException {
     private final HttpStatus httpStatus;
 

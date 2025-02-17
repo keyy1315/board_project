@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
+/*
+ * 일관적인 예외처리 위해 설정해둠
+ */
 public enum ErrorCode {
     NONEXISTENT_BOARD(HttpStatus.NOT_FOUND, "NONEXISTENT_REVIEW"),
     FAIL_TO_UPLOAD_BOARD(HttpStatus.SERVICE_UNAVAILABLE, "FAILED UPLOAD BOARD"),
