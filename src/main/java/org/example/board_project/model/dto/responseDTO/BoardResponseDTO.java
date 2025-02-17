@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * password 를 front 에 넘기지 않기 위해 정의한 response 객체
+ * response 객체
+ * Board Entity 자체를 넘기지 않게 하기 위해 구현
  * Board Entity 에서 password 값만 제외하고 구현
  */
 @AllArgsConstructor
