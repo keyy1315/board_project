@@ -95,13 +95,13 @@
         INSERT INTO bt_tb_board
         (category_cd, title, cont, writer_nm, password, view_cnt, reg_dt)
         VALUES
-        (#{ct_cd}, #{title}, #{cont}, #{writer_nm}, #{password}, 0, NOW())
+        (#{category_cd}, #{title}, #{cont}, #{writer_nm}, #{password}, 0, NOW())
     </insert>
 
 <!-- 게시글 수정 -->
     <update id="updateBoard" parameterType="WriteBoardRequestDTO">
         UPDATE bt_tb_board
-        SET title = #{title}, cont = #{cont}, writer_nm = #{writer_nm}, mod_dt = NOW(), category_cd = #{ct_cd}
+        SET title = #{title}, cont = #{cont}, writer_nm = #{writer_nm}, mod_dt = NOW(), category_cd = #{category_cd}
         WHERE board_no = #{boardNo}
     </update>
 
