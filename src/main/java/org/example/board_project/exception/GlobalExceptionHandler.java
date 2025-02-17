@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 비즈니스 로직에서 생긴 BoardException 처리
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -17,5 +20,6 @@ public class GlobalExceptionHandler {
         resp.put("message", e.getMessage());
         resp.put("status", e.getHttpStatus());
         return new ResponseEntity<>(resp, e.getHttpStatus());
+//        boardException 발생 시 설정해둔 msg, status 반환
     }
 }
