@@ -121,6 +121,14 @@ public class BoardService {
      */
     @Transactional
     public Boolean deleteBoard(int no) {
+//      DB 에 게시글 존재하는 지 확인, 없으면 throw Board Exception (404)
+        if(boardMapper.findBoard(no) == null) {
+            throw new BoardException(
+                    ErrorCode.NONEXISTENT_BOARD.getHttpStatus(),
+                    ErrorCode.NONEXISTENT_BOARD.getMessage()
+            );
+        }
+//      delete 된 행의 개수가 1개면 (delete = true) true 반환
         if (boardMapper.deleteBoard(no) == 1) {
             return true;
         } else {
