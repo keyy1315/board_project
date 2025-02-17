@@ -49,7 +49,9 @@ sourceSets {
     }
 }
 
-processResources { dependsOn("copyReactBuildFiles") }
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn("copyReactBuildFiles") }
 
 task installReact(type: Exec) {
     workingDir("$frontendDir")
