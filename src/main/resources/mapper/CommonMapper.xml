@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.board_project.mapper.CommonMapper">
+    <select id="getCategory" parameterType="string" resultType="CommonCode">
+        select grp_cd, comm_cd, comm_cd_nm from bt_tb_comm_code where grp_cd=#{grp_cd}
+    </select>
+</mapper>
