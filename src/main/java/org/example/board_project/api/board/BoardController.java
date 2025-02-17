@@ -1,11 +1,11 @@
-package org.example.board_project.api;
+package org.example.board_project.api.board;
 
 import lombok.RequiredArgsConstructor;
 import org.example.board_project.exception.Board.BoardException;
-import org.example.board_project.model.dto.requestDTO.BoardListRequestDTO;
-import org.example.board_project.model.dto.requestDTO.WriteBoardRequestDTO;
-import org.example.board_project.model.dto.responseDTO.BoardListResponseDTO;
-import org.example.board_project.model.dto.responseDTO.BoardResponseDTO;
+import org.example.board_project.model.dto.Board.requestDTO.BoardListRequestDTO;
+import org.example.board_project.model.dto.Board.requestDTO.WriteBoardRequestDTO;
+import org.example.board_project.model.dto.Board.responseDTO.BoardListResponseDTO;
+import org.example.board_project.model.dto.Board.responseDTO.BoardResponseDTO;
 import org.example.board_project.service.BoardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +44,8 @@ public class BoardController {
      * @param no - 게시글 번호
      * @return Board
      * @throws BoardException (상태코드 : 404 Not Found)
-     * 게시글 조회 : board_no(게시글 번호)를 통해 게시글 조회수 증가 후 게시글 객체 반환
-     * 번호에 맞는 게시글이 존재하지 않을 때 404 Error 반환
+     *                        게시글 조회 : board_no(게시글 번호)를 통해 게시글 조회수 증가 후 게시글 객체 반환
+     *                        번호에 맞는 게시글이 존재하지 않을 때 404 Error 반환
      */
     @GetMapping("/no")
     public ResponseEntity<Object> getBoard(@RequestParam int no) {
@@ -61,8 +61,8 @@ public class BoardController {
      * @param cont        - 내용
      * @return Board      - 작성된 게시글 객체
      * @throws BoardException (상태코드 : 503 Service Unavailable)
-     * 게시글 작성 : 게시글 작성 후 게시글 객체 반환
-     * 작성에 실패하면 503 Error 반환
+     *                        게시글 작성 : 게시글 작성 후 게시글 객체 반환
+     *                        작성에 실패하면 503 Error 반환
      */
     @PostMapping("/write")
     public ResponseEntity<Object> writeBoard(
@@ -86,8 +86,8 @@ public class BoardController {
      * @param cont        - 내용
      * @return Board
      * @throws BoardException (상태코드 : 503 Service Unavailable)
-     * 게시글 수정 : 게시글 수정 후 게시글 객체 반환
-     * 수정에 실패하면 503 Error 반환
+     *                        게시글 수정 : 게시글 수정 후 게시글 객체 반환
+     *                        수정에 실패하면 503 Error 반환
      */
     @PutMapping("/update")
     public ResponseEntity<Object> updateBoard(
@@ -103,26 +103,28 @@ public class BoardController {
     }
 
     /**
-     * @param no       - 게시글 번호
+     * @param no - 게시글 번호
      * @return boolean - 삭제된 행이 1개일 때 true 반환
      * @throws BoardException (상태코드 : 503 Service Unavailable)
-     * 게시글 삭제 : 게시글 삭제 후 삭제 상태 반환
-     * 삭제에 실패하면 503 Error 반환
+     *                        게시글 삭제 : 게시글 삭제 후 삭제 상태 반환
+     *                        삭제에 실패하면 503 Error 반환
      */
-    @DeleteMapping("/delete")
-    public ResponseEntity<Object> deleteBoard(@RequestParam int no) {
+    @DeleteMapping("/delete/{no}")
+    public ResponseEntity<Object> deleteBoard(
+//            @RequestParam int no
+            @PathVariable int no
+    ) {
         Boolean result = boardService.deleteBoard(no);
         return ResponseEntity.ok().body(result);
     }
 
     /**
-     *
      * @param no       - 게시글 번호
      * @param password - 비밀번호
      * @return boolean - db에 저장되어있는 비밀번호와 일치할 때 true 반환
      * @throws BoardException (상태코드 : 401 Unauthorized)
-     * 비밀번호 확인 : 비밀번호 입력 후 일치 여부 반환
-     * 비밀번호가 맞지 않으면 401 Error 반환
+     *                        비밀번호 확인 : 비밀번호 입력 후 일치 여부 반환
+     *                        비밀번호가 맞지 않으면 401 Error 반환
      */
     @PostMapping("/auth")
     public ResponseEntity<Object> auth(

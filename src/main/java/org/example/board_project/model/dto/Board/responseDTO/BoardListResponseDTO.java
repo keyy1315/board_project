@@ -1,4 +1,4 @@
-package org.example.board_project.model.dto.responseDTO;
+package org.example.board_project.model.dto.Board.responseDTO;
 
 import lombok.Builder;
 import lombok.Getter;

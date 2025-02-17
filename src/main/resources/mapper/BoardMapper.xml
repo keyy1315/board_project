@@ -6,14 +6,12 @@
 <mapper namespace="org.example.board_project.mapper.BoardMapper">
     <select id="countBoard" parameterType="BoardListRequestDTO" resultType="int">
         SELECT COUNT(*) FROM bt_tb_board as b
-<!--        join 조건        -->
-        INNER JOIN bt_tb_comm_code as c
-        ON b.category_cd = c.comm_cd
 <!--        조건문 결과에 따라 곧바로 and 가 입력되어도 sql 오류가 나지 않게 하기 위한 always true 구문 -->
         WHERE 1=1
 <!--        카테고리 코드 필터 -->
         <if test="category_cd != null">
-            AND c.comm_cd_nm = #{category_cd}
+            AND b.category_cd = #{category_cd}
+<!--            ctg001, ctg002, ctg003-->
         </if>
 <!--        검색어 필터 -->
         <if test="search != null">
@@ -41,14 +39,11 @@
 
     <select id="findWithFilter" parameterType="BoardListRequestDTO" resultType="Board">
         SELECT * FROM bt_tb_board as b
-        <!-- join 조건 -->
-        INNER JOIN bt_tb_comm_code as c
-        ON b.category_cd = c.comm_cd
         <!-- 조건문 결과에 따라 곧바로 and 가 입력되어도 sql 오류가 나지 않게 하기 위한 always true 구문 -->
         WHERE 1=1
 <!--        카테고리 필터 -->
         <if test="category_cd != null">
-            AND c.comm_cd_nm = #{category_cd}
+            AND b.category_cd = #{category_cd}
         </if>
 <!--        검색어 필터 -->
         <if test="search != null">
