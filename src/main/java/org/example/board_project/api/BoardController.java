@@ -17,7 +17,7 @@ public class BoardController {
     private final BoardService boardService;
 
     /**
-     * @param category_cd - 카테고리 코드 (전체, 공지, 중요, 일반)
+     * @param category_cd - 카테고리 코드 (전체(null), 공지, 중요, 일반)
      * @param src_cd      - 검색 조건 (전체, 제목, 내용, 제목+내용, 작성자명)
      * @param search      - 검색어
      * @param sort_cd     - 정렬 조건 (최근 작성일, 조회수)
