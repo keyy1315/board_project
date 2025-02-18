@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Board {
     private int board_no;
-    private String category_cd;
+    private String comm_cd_nm;
     private String title;
     private String cont;
     private String writer_nm;
