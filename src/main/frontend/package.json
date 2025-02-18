@@ -5,6 +5,7 @@
     "@eslint/js": "^9.19.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@types/react-modal": "^3.16.3",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "eslint": "^9.19.0",
     "eslint-plugin-react-hooks": "^5.0.0",
@@ -23,8 +24,11 @@
   },
   "type": "module",
   "dependencies": {
+    "@tanstack/react-query": "^5.66.5",
+    "axios": "^1.7.9",
     "react": "18",
     "react-dom": "18",
+    "react-modal": "^3.16.3",
     "react-router-dom": "6",
     "recoil": "^0.7.7"
   }
