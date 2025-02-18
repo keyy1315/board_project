@@ -1,4 +1,4 @@
-package org.example.board_project.model.dto.requestDTO;
+package org.example.board_project.model.dto.requestDTO.board;
 
 
 import lombok.AllArgsConstructor;

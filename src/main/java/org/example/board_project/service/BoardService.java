@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.example.board_project.exception.Board.BoardException;
 import org.example.board_project.exception.ErrorCode;
 import org.example.board_project.mapper.BoardMapper;
-import org.example.board_project.model.dto.requestDTO.BoardListRequestDTO;
-import org.example.board_project.model.dto.requestDTO.WriteBoardRequestDTO;
-import org.example.board_project.model.dto.responseDTO.BoardListResponseDTO;
-import org.example.board_project.model.dto.responseDTO.BoardResponseDTO;
+import org.example.board_project.model.dto.requestDTO.board.BoardListRequestDTO;
+import org.example.board_project.model.dto.requestDTO.board.WriteBoardRequestDTO;
+import org.example.board_project.model.dto.responseDTO.board.BoardListResponseDTO;
+import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
 import org.example.board_project.model.entity.Board;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -190,7 +190,7 @@ public class BoardService {
     private BoardResponseDTO conversionBoardToDTO(Board board) {
         return BoardResponseDTO.builder()
                 .board_no(board.getBoard_no())
-                .category_cd(board.getCategory_cd())
+                .category_cd(board.getComm_cd_nm())
                 .title(board.getTitle())
                 .cont(board.getCont())
                 .writer_nm(board.getWriter_nm())

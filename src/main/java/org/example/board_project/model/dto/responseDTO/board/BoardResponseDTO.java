@@ -1,4 +1,4 @@
-package org.example.board_project.model.dto.responseDTO;
+package org.example.board_project.model.dto.responseDTO.board;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

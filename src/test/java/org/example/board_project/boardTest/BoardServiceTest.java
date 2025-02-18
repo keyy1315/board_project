@@ -3,7 +3,7 @@ package org.example.board_project.boardTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.board_project.mapper.BoardMapper;
-import org.example.board_project.model.dto.responseDTO.BoardResponseDTO;
+import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
 import org.example.board_project.model.entity.Board;
 import org.example.board_project.service.BoardService;
 import org.junit.jupiter.api.DisplayName;
