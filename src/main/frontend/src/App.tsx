@@ -1,3 +1,4 @@
+
 import Header from "./component/Header";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./component/Footer";
@@ -31,5 +32,6 @@ function App() {
     </QueryClientProvider>
   );
 }
+
 
 export default App;
