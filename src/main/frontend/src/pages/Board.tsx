@@ -3,10 +3,12 @@ import { getBoard } from "../api/BoardApi";
 import type { Board } from "../types/Board";
 import Popup from "./Popup";
 import ReactModal, {} from "react-modal";
+import { useNavigate } from "react-router-dom";
 
 export default function Board() {
   const [board, setBoard] = useState<Board | null>();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const navigate = useNavigate();
 
   const openPopup = () => {
     setIsPopupOpen(true);
@@ -81,29 +83,17 @@ export default function Board() {
         <a href="#" className="btn btn-red" onClick={openPopup}>
           삭제
         </a>
-        <ReactModal isOpen={isPopupOpen} onRequestClose={closePopup} ariaHideApp={false}
-        style={{
-          overlay: {
-            zIndex: 1000, // overlay의 z-index 높임
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // 배경 어두운 색
-          },
-          content: {
-            zIndex: 1001, // content의 z-index를 overlay보다 높임
-            top: '20%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            padding: '20px',
-            width: '80%',
-            maxWidth: '600px',
-            background: '#fff',
-            borderRadius: '10px',
-            height: '230px'
-          },
-        }}
-        >
+        <ReactModal isOpen={isPopupOpen} onRequestClose={closePopup} ariaHideApp={false} className="popup-modal">
           <Popup onClose={closePopup} />
         </ReactModal>
-        <a href="/" className="btn btn-default">
+        <a 
+          href="" 
+          className="btn btn-default"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/");
+          }}
+        >
           목록
         </a>
       </div>
