@@ -5,5 +5,4 @@ public class FileRequestDTO {
     private String save_file_nm;
     private String save_path;
     private String ext;
-    private int size;
 }
