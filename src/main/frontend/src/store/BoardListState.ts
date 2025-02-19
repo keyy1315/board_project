@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import { Board } from "../types/Board";
-import { RequestBoardList } from "../types/RequestBoardList";
+import { RequestBoardList } from "../types/request/RequestBoardList";
 
 
 // export const BoardListState = atom<BoardList>({

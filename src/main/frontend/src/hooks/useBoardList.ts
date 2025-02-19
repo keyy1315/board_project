@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { BoardList } from "../types/BoardList";
 import { getBoardList } from "../api/BoardApi";
-import { RequestBoardList } from "../types/RequestBoardList";
+import { RequestBoardList } from "../types/request/RequestBoardList";
 
 export const useBoardList = (requestBoardList: RequestBoardList) => {
   const {
