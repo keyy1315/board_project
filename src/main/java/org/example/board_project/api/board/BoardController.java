@@ -40,9 +40,6 @@ public class BoardController {
         BoardListRequestDTO DTO = BoardListRequestDTO.create(category_cd, src_cd, search, sort_cd, offset, page_size);
         BoardListResponseDTO boards = boardService.findBoardList(DTO);
 
-        log.info("DTO : {}",DTO.toString());
-        log.info("Boards : {}",boards.toString());
-
         return ResponseEntity.ok().body(boards);
     }
 
@@ -60,50 +57,31 @@ public class BoardController {
     }
 
     /**
-     * @param writer_nm   - 작성자명
-     * @param password    - 비밀번호
-     * @param category_cd - 카테고리 코드
-     * @param title       - 제목
-     * @param cont        - 내용
+     * @param DTO WriteBoardRequestDTO
      * @return Board      - 작성된 게시글 객체
      * @throws BoardException (상태코드 : 503 Service Unavailable)
      *                        게시글 작성 : 게시글 작성 후 게시글 객체 반환
      *                        작성에 실패하면 503 Error 반환
      */
     @PostMapping("/")
-    public ResponseEntity<Object> writeBoard(
-            @RequestParam String writer_nm,
-            @RequestParam String password,
-            @RequestParam String category_cd,
-            @RequestParam String title,
-            @RequestParam String cont) {
-        WriteBoardRequestDTO dto = new WriteBoardRequestDTO(writer_nm, password, title, cont, category_cd, 0);
-        BoardResponseDTO board = boardService.saveBoard(dto);
+    public ResponseEntity<Object> writeBoard(@RequestBody WriteBoardRequestDTO DTO) {
+        BoardResponseDTO board = boardService.saveBoard(DTO);
         return ResponseEntity.ok().body(board);
     }
 
 
     /**
-     * @param no          - 게시글 번호
-     * @param writer_nm   - 작성자명
-     * @param password    - 비밀번호
-     * @param category_cd - 카테고리 코드
-     * @param title       - 제목
-     * @param cont        - 내용
+     * @param DTO WriteBoardRequestDTO
      * @return Board
      * @throws BoardException (상태코드 : 503 Service Unavailable)
      *                        게시글 수정 : 게시글 수정 후 게시글 객체 반환
      *                        수정에 실패하면 503 Error 반환
      */
-    @PutMapping("/")
+    @PutMapping("/{no}")
     public ResponseEntity<Object> updateBoard(
-            @RequestParam int no,
-            @RequestParam String writer_nm,
-            @RequestParam String password,
-            @RequestParam String category_cd,
-            @RequestParam String title,
-            @RequestParam String cont) {
-        WriteBoardRequestDTO dto = new WriteBoardRequestDTO(writer_nm, password, title, cont, category_cd, no);
+            @PathVariable int no,
+            @RequestBody WriteBoardRequestDTO DTO) {
+        WriteBoardRequestDTO dto = WriteBoardRequestDTO.from(no, DTO);
         BoardResponseDTO board = boardService.updateBoard(dto);
         return ResponseEntity.ok().body(board);
     }
@@ -115,8 +93,8 @@ public class BoardController {
      *                        게시글 삭제 : 게시글 삭제 후 삭제 상태 반환
      *                        삭제에 실패하면 503 Error 반환
      */
-    @DeleteMapping("/")
-    public ResponseEntity<Object> deleteBoard(@RequestParam int no) {
+    @DeleteMapping("/{no}")
+    public ResponseEntity<Object> deleteBoard(@PathVariable int no) {
         Boolean result = boardService.deleteBoard(no);
         return ResponseEntity.ok().body(result);
     }
