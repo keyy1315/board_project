@@ -3,13 +3,18 @@ import newImage from "../images/new.gif";
 import { useBoardList } from "../hooks/useBoardList";
 import { useCategory } from "../hooks/useCategory";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { RequestBoardListState } from "../store/BoardListState";
+import { useState } from "react";
 
 export default function BoardList() {
   const navigate = useNavigate();
-  const { boardList } = useBoardList();
-  const { category } = useCategory();
+  const [request, setRequest] = useRecoilState(RequestBoardListState);
 
-  console.log(category);
+  const [searchText, setSearchText] = useState<string>("");
+  const [searchCode, setsearchCode] = useState<string>("");
+  const { boardList } = useBoardList(request);
+  const { category } = useCategory();
 
   const isNew = (reg_dt: string) => {
     const postDate = new Date(reg_dt);
@@ -19,6 +24,18 @@ export default function BoardList() {
     three.setDate(now.getDate() - 3);
 
     return postDate >= three;
+  };
+
+  const handleSearch = () => {
+    if (!searchText.trim()) {
+      alert("검색어를 입력하세요");
+      return;
+    }
+    setRequest((p) => ({
+      ...p,
+      search: searchText,
+      src_cd: searchCode,
+    }));
   };
 
   return (
@@ -37,10 +54,18 @@ export default function BoardList() {
                   id="category_cd"
                   className="select"
                   style={{ width: "150px" }}
+                  value={request.category_cd}
+                  onChange={(e) =>
+                    setRequest((p) => ({ ...p, category_cd: e.target.value }))
+                  }
                 >
-                  <option key={"all"}>전체</option>
+                  <option value="" key="all">
+                    전체
+                  </option>
                   {category.map((c) => (
-                    <option key={c.comm_cd}>{c.comm_cd_nm}</option>
+                    <option value={c.comm_cd} key={c.comm_cd}>
+                      {c.comm_cd_nm}
+                    </option>
                   ))}
                 </select>
               </td>
@@ -52,17 +77,32 @@ export default function BoardList() {
                   id="searchCode"
                   className="select"
                   style={{ width: "150px" }}
+                  value={searchCode}
+                  onChange={(e) => setsearchCode(e.target.value)}
                 >
-                  <option key={"all"}>전체</option>
-                  <option key={"title"}>제목</option>
-                  <option key={"cont"}>내용</option>
-                  <option key={"tiCont"}>제목 + 내용</option>
-                  <option key={"writer_nm"}>작성자명</option>
+                  <option value="all" key="all">
+                    전체
+                  </option>
+                  <option value="title" key="title">
+                    제목
+                  </option>
+                  <option value="cont" key="cont">
+                    내용
+                  </option>
+                  <option value="tiCont" key="tiCont">
+                    제목 + 내용
+                  </option>
+                  <option value="writer_nm" key="writer_nm">
+                    작성자명
+                  </option>
                 </select>
                 <input
                   type="text"
                   className="input"
                   style={{ width: "300px" }}
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
               </td>
             </tr>
@@ -70,7 +110,7 @@ export default function BoardList() {
         </table>
       </div>
       <div className="btn-box btm l">
-        <a href="/" className="btn btn-red fr">
+        <a href="#" className="btn btn-red fr" onClick={handleSearch}>
           검색
         </a>
       </div>
@@ -81,9 +121,12 @@ export default function BoardList() {
         </span>
         <div className="right">
           <span className="spanTitle">정렬 순서 :</span>
-          <select id="sortCode" className="select" style={{ width: "120px" }}>
-            <option key={"reg_dt"}>최근 작성일</option>
-            <option key={"view_cnt"}>조회수</option>
+          <select id="sortCode" className="select" style={{ width: "120px" }}
+          onChange={(e) =>
+            setRequest((p) => ({ ...p, sort_cd: e.target.value }))
+          }>
+            <option key={"reg_dt"} value={"reg_dt"}>최근 작성일</option>
+            <option key={"view_cnt"} value={"view_cnt"}>조회수</option>
           </select>
         </div>
       </div>
@@ -114,10 +157,12 @@ export default function BoardList() {
               <td>{b.board_no}</td>
               <td>{b.category_cd}</td>
               <td className="l">
-                <a href=""
-                onClick={() => {
-                  navigate(`/board/${b.board_no}`)
-                }}
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/board/${b.board_no}`);
+                  }}
                 >
                   {b.title}
                   {isNew(b.reg_dt) && <img src={newImage} className="new" />}
@@ -137,13 +182,16 @@ export default function BoardList() {
           ))}
         </tbody>
       </table>
-      <Paginate />
+      <Paginate total={boardList.total} />
       <div className="btn-box l mt30">
-        <a href="" 
-        onClick={() => {
-          navigate("/board/write");
-        }}
-        className="btn btn-green fr">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/board/write");
+          }}
+          className="btn btn-green fr"
+        >
           등록
         </a>
       </div>
