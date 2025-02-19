@@ -41,43 +41,43 @@ tasks.named('test') {
 }
 
 
-def frontendDir = "$projectDir/src/main/frontend"
-
-sourceSets {
-    main {
-        resources { srcDirs(["$projectDir/src/main/resources"]) }
-    }
-}
-
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn("copyReactBuildFiles") }
-
-task installReact(type: Exec) {
-    workingDir("$frontendDir")
-    inputs.dir("$frontendDir")
-    group = BasePlugin.BUILD_GROUP
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "bun", "install"
-    } else {
-        commandLine "bun", "install"
-    }
-}
-
-task buildReact(type: Exec) {
-    dependsOn("installReact")
-    workingDir("$frontendDir")
-    inputs.dir("$frontendDir")
-    group = BasePlugin.BUILD_GROUP
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "bun", "run", "build"
-    } else {
-        commandLine "bun", "run", "build"
-    }
-}
-
-task copyReactBuildFiles(type: Copy) {
-    dependsOn("buildReact")
-    from("$frontendDir/dist")
-    into("$projectDir/src/main/resources/static")
-}
+//def frontendDir = "$projectDir/src/main/frontend"
+//
+//sourceSets {
+//    main {
+//        resources { srcDirs(["$projectDir/src/main/resources"]) }
+//    }
+//}
+//
+//processResources {
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//    dependsOn("copyReactBuildFiles") }
+//
+//task installReact(type: Exec) {
+//    workingDir("$frontendDir")
+//    inputs.dir("$frontendDir")
+//    group = BasePlugin.BUILD_GROUP
+//    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+//        commandLine "bun", "install"
+//    } else {
+//        commandLine "bun", "install"
+//    }
+//}
+//
+//task buildReact(type: Exec) {
+//    dependsOn("installReact")
+//    workingDir("$frontendDir")
+//    inputs.dir("$frontendDir")
+//    group = BasePlugin.BUILD_GROUP
+//    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+//        commandLine "bun", "run", "build"
+//    } else {
+//        commandLine "bun", "run", "build"
+//    }
+//}
+//
+//task copyReactBuildFiles(type: Copy) {
+//    dependsOn("buildReact")
+//    from("$frontendDir/dist")
+//    into("$projectDir/src/main/resources/static")
+//}
