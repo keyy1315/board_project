@@ -2,6 +2,7 @@ package org.example.board_project.model.dto.responseDTO.board;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  */
 @Builder
 @Getter
+@ToString
 public class BoardListResponseDTO {
     private List<BoardResponseDTO> boards;
     private int total;

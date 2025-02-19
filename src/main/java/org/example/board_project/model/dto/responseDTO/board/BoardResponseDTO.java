@@ -1,9 +1,6 @@
 package org.example.board_project.model.dto.responseDTO.board;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @RequiredArgsConstructor
+@ToString
 public class BoardResponseDTO {
     private int board_no;
     private String category_cd;

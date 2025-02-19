@@ -1,6 +1,7 @@
 package org.example.board_project.api.board;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.board_project.exception.Board.BoardException;
 import org.example.board_project.model.dto.requestDTO.board.BoardListRequestDTO;
 import org.example.board_project.model.dto.requestDTO.board.WriteBoardRequestDTO;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
+@Slf4j
 public class BoardController {
     private final BoardService boardService;
 
@@ -26,7 +28,7 @@ public class BoardController {
      * @return BoardListResponseDTO(List < Board > - 게시글 목록, int - 검색총수))
      * 조건에 따른 게시글이 하나도 없을 때는 Exception 처리 없이 List : null, int : 0 을 반환한다.
      */
-    @GetMapping("/list")
+    @GetMapping("/")
     public ResponseEntity<Object> getBoardList(
             @RequestParam(required = false) String category_cd,
             @RequestParam(required = false) String src_cd,
@@ -35,8 +37,12 @@ public class BoardController {
             @RequestParam int page_no,
             @RequestParam int page_size) {
         int offset = (page_no - 1) * page_size;
-        BoardListRequestDTO DTO = new BoardListRequestDTO(category_cd, src_cd, search, sort_cd, offset, page_size);
+        BoardListRequestDTO DTO = BoardListRequestDTO.create(category_cd, src_cd, search, sort_cd, offset, page_size);
         BoardListResponseDTO boards = boardService.findBoardList(DTO);
+
+        log.info("DTO : {}",DTO.toString());
+        log.info("Boards : {}",boards.toString());
+
         return ResponseEntity.ok().body(boards);
     }
 
@@ -64,7 +70,7 @@ public class BoardController {
      *                        게시글 작성 : 게시글 작성 후 게시글 객체 반환
      *                        작성에 실패하면 503 Error 반환
      */
-    @PostMapping("/write")
+    @PostMapping("/")
     public ResponseEntity<Object> writeBoard(
             @RequestParam String writer_nm,
             @RequestParam String password,
@@ -89,7 +95,7 @@ public class BoardController {
      *                        게시글 수정 : 게시글 수정 후 게시글 객체 반환
      *                        수정에 실패하면 503 Error 반환
      */
-    @PutMapping("/update")
+    @PutMapping("/")
     public ResponseEntity<Object> updateBoard(
             @RequestParam int no,
             @RequestParam String writer_nm,
@@ -109,7 +115,7 @@ public class BoardController {
      *                        게시글 삭제 : 게시글 삭제 후 삭제 상태 반환
      *                        삭제에 실패하면 503 Error 반환
      */
-    @DeleteMapping("/delete")
+    @DeleteMapping("/")
     public ResponseEntity<Object> deleteBoard(@RequestParam int no) {
         Boolean result = boardService.deleteBoard(no);
         return ResponseEntity.ok().body(result);
