@@ -152,9 +152,9 @@ export default function BoardList() {
           </tr>
         </thead>
         <tbody>
-          {boardList.boards.map((b) => (
+          {boardList.boards.map((b, index) => (
             <tr key={b.board_no}>
-              <td>{b.board_no}</td>
+              <td>{(request.page_no - 1) * request.page_size + index + 1}</td>
               <td>{b.category_cd}</td>
               <td className="l">
                 <a
