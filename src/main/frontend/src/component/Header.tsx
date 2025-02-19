@@ -10,7 +10,7 @@ export default function Header() {
                     </h1>
                     <div id="gnb-wrap">
                         <ul id="gnb">
-                            <li className="gnb1"><a href="#" className="d1">커뮤니티</a></li>
+                            <li className="gnb1"><a href="" className="d1">커뮤니티</a></li>
                         </ul>
                     </div>
                 </div>

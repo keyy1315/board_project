@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 export default function BoardWrite() {
+  const navigate = useNavigate();
   return (
     <div>
       <div id="contents">
@@ -99,10 +102,17 @@ export default function BoardWrite() {
         </table>
 
         <div className="btn-box r">
-          <a href="#" className="btn btn-red">
+          <a href="" className="btn btn-red">
             저장
           </a>
-          <a href="#" className="btn btn-default">
+          <a 
+          href="" 
+          className="btn btn-default"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/");
+          }}
+        >
             취소
           </a>
         </div>

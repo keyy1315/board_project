@@ -77,10 +77,10 @@ export default function Board() {
       </table>
 
       <div className="btn-box r">
-        <a href="#" className="btn btn-green" onClick={openPopup}>
+        <a href="" className="btn btn-green" onClick={openPopup}>
           수정
         </a>
-        <a href="#" className="btn btn-red" onClick={openPopup}>
+        <a href="" className="btn btn-red" onClick={openPopup}>
           삭제
         </a>
         <ReactModal isOpen={isPopupOpen} onRequestClose={closePopup} ariaHideApp={false} className="popup-modal">
