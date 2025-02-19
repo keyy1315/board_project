@@ -2,7 +2,7 @@ package org.example.board_project.api.common;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.board_project.model.entity.Common;
+import org.example.board_project.model.Common;
 import org.example.board_project.service.common.CommonService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

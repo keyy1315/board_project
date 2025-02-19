@@ -1,4 +1,4 @@
-package org.example.board_project.model.entity;
+package org.example.board_project.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

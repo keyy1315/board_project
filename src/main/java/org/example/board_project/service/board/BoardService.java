@@ -1,4 +1,4 @@
-package org.example.board_project.service;
+package org.example.board_project.service.board;
 
 import lombok.RequiredArgsConstructor;
 import org.example.board_project.exception.Board.BoardException;
@@ -8,7 +8,7 @@ import org.example.board_project.model.dto.requestDTO.board.BoardListRequestDTO;
 import org.example.board_project.model.dto.requestDTO.board.WriteBoardRequestDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardListResponseDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
-import org.example.board_project.model.entity.Board;
+import org.example.board_project.model.Board;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;

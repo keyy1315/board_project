@@ -7,7 +7,7 @@ import org.example.board_project.model.dto.requestDTO.board.BoardListRequestDTO;
 import org.example.board_project.model.dto.requestDTO.board.WriteBoardRequestDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardListResponseDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
-import org.example.board_project.service.BoardService;
+import org.example.board_project.service.board.BoardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

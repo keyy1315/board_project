@@ -1,7 +1,7 @@
 package org.example.board_project.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.example.board_project.model.entity.Common;
+import org.example.board_project.model.Common;
 
 import java.util.List;
 

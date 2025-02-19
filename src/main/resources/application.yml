@@ -9,5 +9,5 @@ spring:
 
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
-  type-aliases-package: org.example.board_project.model.entity, org.example.board_project.model.dto.requestDTO.board
+  type-aliases-package: org.example.board_project.model, org.example.board_project.model.dto.requestDTO.board
 

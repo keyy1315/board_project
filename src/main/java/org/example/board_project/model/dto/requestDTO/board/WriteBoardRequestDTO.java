@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.example.board_project.model.dto.requestDTO.file.FileRequestDTO;
-import org.example.board_project.model.entity.Board;
 
 /**
  * 글 작성/수정 요청할 때 전송하는 데이터 객체
