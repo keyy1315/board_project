@@ -9,6 +9,7 @@ import org.example.board_project.model.dto.responseDTO.board.BoardListResponseDT
 import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
 import org.example.board_project.model.dto.responseDTO.file.FileResponseDTO;
 import org.example.board_project.service.board.BoardService;
+import org.example.board_project.service.common.CommonService;
 import org.example.board_project.service.file.FileService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
     private final FileService fileService;
+    private final CommonService commonService;
 
     /**
      * @param category_cd - 카테고리 코드 (전체(null), 공지, 중요, 일반)
@@ -97,9 +99,10 @@ public class BoardController {
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> uploadFiles,
             @RequestPart(value = "deleteFiles", required = false ) List<Integer> deleteFiles
     ) throws IOException {
-        WriteBoardRequestDTO dto = WriteBoardRequestDTO.of(no, DTO);
+        String category = commonService.getCategoryCode(DTO.getCategory_cd());
+        WriteBoardRequestDTO dto = WriteBoardRequestDTO.of(no, DTO, category);
         BoardResponseDTO board = boardService.updateBoard(dto);
-        List<FileResponseDTO> files = fileService.updateFiles(deleteFiles, uploadFiles, no, DTO.getCategory_cd());
+        List<FileResponseDTO> files = fileService.updateFiles(deleteFiles, uploadFiles, no, category);
         board = BoardResponseDTO.of(board, files);
         return ResponseEntity.ok().body(board);
     }

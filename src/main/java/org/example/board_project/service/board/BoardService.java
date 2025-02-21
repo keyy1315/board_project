@@ -10,6 +10,7 @@ import org.example.board_project.model.dto.responseDTO.board.BoardListResponseDT
 import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
 import org.example.board_project.model.Board;
 import org.example.board_project.model.dto.responseDTO.file.FileResponseDTO;
+import org.example.board_project.service.common.CommonService;
 import org.example.board_project.service.file.FileService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class BoardService {
     private final FileService fileService;
 
     private final BoardMapper boardMapper;
+    private final CommonService commonService;
 
     /**
      * @param dto - [category_cd, searchCode, search, sortCode, offset, size]
@@ -101,7 +103,8 @@ public class BoardService {
     @Transactional
     public BoardResponseDTO updateBoard(WriteBoardRequestDTO dto) {
 //      DB 에 게시글 존재하는 지 확인, 없으면 throw Board Exception (404)
-        if (boardMapper.findBoard(dto.getBoardNo()) == null) {
+        Board board = boardMapper.findBoard(dto.getBoardNo());
+        if (board == null) {
             throw new BoardException(
                     ErrorCode.NONEXISTENT_BOARD.getHttpStatus(),
                     ErrorCode.NONEXISTENT_BOARD.getMessage()
@@ -111,8 +114,8 @@ public class BoardService {
         DTONullChecker(dto);
 //      update 된 행이 한 개면 (update = true), board DTO 로 변환 후 반환
         if (boardMapper.updateBoard(dto) == 1) {
-            Board board = boardMapper.findBoard(dto.getBoardNo());
-            return conversionBoardToDTO(Objects.requireNonNull(board));
+            board = boardMapper.findBoard(dto.getBoardNo());
+            return conversionBoardToDTO(board);
         } else {
 //          update 되지 않았다면 throw Board Exception (503)
             throw new BoardException(

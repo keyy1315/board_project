@@ -7,7 +7,6 @@ interface PaginateProps {
 
 export default function Paginate({ total }: PaginateProps) {
   const [request, setRequest] = useRecoilState(RequestBoardListState);
-
   const totalPages = Math.ceil(total / request.page_size);
   const currentPage = request.page_no;
   const pageNumbers = Array.from({length: totalPages}, (_, i) => i + 1);
@@ -15,7 +14,7 @@ export default function Paginate({ total }: PaginateProps) {
   const handlePageClick = (pageNo: number) => {
     setRequest(prev => ({...prev, page_no: pageNo}));
   };
-
+ 
   return (
     <div className="paginate_complex">
       <a 
@@ -24,8 +23,7 @@ export default function Paginate({ total }: PaginateProps) {
         onClick={(e) => {
           e.preventDefault();
           handlePageClick(1);
-        }}
-      >
+        }}>
         처음
       </a>
       <a 

@@ -7,11 +7,11 @@ import { Viewer } from "@toast-ui/react-editor";
 import { downloadFile } from "../api/FileApi";
 import { useAddViewCount, useBoard } from "../hooks/useBoard";
 
-
 export default function Board() {
   const boardNo = Number(location.pathname.split("/").pop());
   const { board } = useBoard(boardNo);
   const hasCalled = useRef(false);
+  const navigate = useNavigate();
 
   const { addViewCount } = useAddViewCount(boardNo);
   useEffect(() => {
@@ -21,10 +21,15 @@ export default function Board() {
     }
   }, [addViewCount]);
 
+  useEffect(() => {
+    if (board === undefined) return;
+    if (board === null) {
+      navigate('/');
+    }
+  }, [board, navigate]);
+
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
-
-  const navigate = useNavigate();
 
   const handleOpenPopup = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,6 +47,8 @@ export default function Board() {
   const handleFileClick = (file_no: number) => {
     downloadFile(file_no);
   };
+
+  if (!board) return null;
 
   return (
     <div>

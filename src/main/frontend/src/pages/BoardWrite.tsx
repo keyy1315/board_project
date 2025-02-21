@@ -31,6 +31,7 @@ export default function BoardWrite() {
   const [isModify, setIsModify] = useState(false);
   const [fileInputs, setFileInputs] = useState<{ [key: number]: boolean }>({});
 
+
   const [reqBoard, setReqBoard] = useState<RequestBoard>({
     board_no: null,
     category_cd: "",
@@ -188,9 +189,8 @@ export default function BoardWrite() {
           return newList;
         });
       }
-
+      // icon
       const fileInput = e.target;
-      // 기존 삭제 아이콘이 있다면 제거
       const existingDeleteIcon =
         fileInput.parentNode?.querySelector("#input-delete-icon");
       if (existingDeleteIcon) {
@@ -215,9 +215,10 @@ export default function BoardWrite() {
 
   const handleInputChange = useCallback(
     (field: keyof RequestBoard, value: string) => {
-      if (field === 'cont') {
+      if (field === "cont") {
         // Only allow markdown content for cont field
-        const markdownContent = editorRef.current?.getInstance().getMarkdown() || '';
+        const markdownContent =
+          editorRef.current?.getInstance().getMarkdown() || "";
         setReqBoard((prev) => ({ ...prev, cont: markdownContent }));
       } else {
         setReqBoard((prev) => ({ ...prev, [field]: value }));
@@ -291,7 +292,7 @@ export default function BoardWrite() {
                 >
                   <option value="">선택</option>
                   {category?.map((cat) => (
-                    <option key={cat.comm_cd} value={cat.comm_cd}>
+                    <option key={cat.comm_cd} value={cat.comm_cd_nm}>
                       {cat.comm_cd_nm}
                     </option>
                   ))}

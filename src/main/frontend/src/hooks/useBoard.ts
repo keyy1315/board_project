@@ -8,7 +8,6 @@ export const useBoard = (board_no: number) => {
     queryFn: () => getBoard(board_no),
     enabled: !!board_no
   });
-
   return {board}; 
 };
 

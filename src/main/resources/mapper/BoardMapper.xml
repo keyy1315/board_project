@@ -110,11 +110,13 @@
     </update>
 
 
-    <select id="findBoard" parameterType="int">
+    <select id="findBoard" parameterType="int" resultType="Board">
         SELECT
-        board_no, category_cd as comm_cd_nm,
-        title, cont, writer_nm, password, view_cnt, reg_dt, mod_dt
-        FROM bt_tb_board
+        b.board_no, c.comm_cd_nm,
+        b.title, b.cont, b.writer_nm, b.password, b.view_cnt, b.reg_dt, b.mod_dt
+        FROM bt_tb_board as b
+        INNER JOIN bt_tb_comm_code as c
+        ON b.category_cd = c.comm_cd
         WHERE board_no = #{boardNo}
     </select>
 

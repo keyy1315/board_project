@@ -2,6 +2,7 @@ package org.example.board_project.api.file;
 
 import lombok.RequiredArgsConstructor;
 import org.example.board_project.model.dto.requestDTO.file.ImageRequestDTO;
+import org.example.board_project.model.dto.responseDTO.file.GetOriginNameFileDTO;
 import org.example.board_project.service.file.FileService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -28,12 +29,12 @@ public class FileController {
      */
     @GetMapping("/{file_no}")
     public ResponseEntity<Resource> downloadFile(@PathVariable int file_no) {
-        File file = fileService.downloadFile(file_no);
+        GetOriginNameFileDTO fileDTO = fileService.downloadFile(file_no);
 
-        Resource resource = new FileSystemResource(file);
+        Resource resource = new FileSystemResource(fileDTO.getFile());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDTO.getOriginName() + "\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }

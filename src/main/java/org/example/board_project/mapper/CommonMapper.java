@@ -9,4 +9,5 @@ import java.util.List;
 public interface CommonMapper {
 //      카테고리 리스트 조회 쿼리
     List<Common> getCategory();
+    String getCategoryCode(String category);
 }

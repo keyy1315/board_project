@@ -12,7 +12,6 @@ export const getBoardList = async (requestBoardList: RequestBoardList) => {
 };
 
 export const getBoard = async (board_no: number): Promise<Board> => {
-  console.log("getBoard : ",board_no);
   const response = await axios.get<Board>(`/api/board/${board_no}`);
   return response.data;
 };
@@ -80,6 +79,5 @@ export const authBoard = async (board_no: number, password: string) => {
 
 export const addViewCount = async (board_no: number) => {
   const response = await axios.patch<boolean>(`/api/board/${board_no}`);
-  console.log("addViewCount : ", board_no, response.data);
   return response.data;
 };

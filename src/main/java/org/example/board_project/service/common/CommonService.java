@@ -27,4 +27,8 @@ public class CommonService {
         }
         return commonList;
     }
+
+    public String getCategoryCode(String categoryCd) {
+        return commonMapper.getCategoryCode(categoryCd);
+    }
 }

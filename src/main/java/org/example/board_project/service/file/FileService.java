@@ -6,6 +6,8 @@ import org.example.board_project.exception.File.FileException;
 import org.example.board_project.mapper.FileMapper;
 import org.example.board_project.model.BoardFile;
 import org.example.board_project.model.dto.responseDTO.file.FileResponseDTO;
+import org.example.board_project.model.dto.responseDTO.file.GetOriginNameFileDTO;
+import org.example.board_project.service.common.CommonService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,13 +25,14 @@ import java.util.List;
 public class FileService {
     private static final String UPLOAD_DIRECTORY = "C:\\upload";
     private final FileMapper fileMapper;
+    private final CommonService commonService;
 
     /**
      * @param file_no - 파일 pk
      * @return        - 다운로드 할 파일
      * 파일 pk로 저장된 파일 데이터 조회, 파일 객체 생성 후 반환
      */
-    public File downloadFile(int file_no) {
+    public GetOriginNameFileDTO downloadFile(int file_no) {
         BoardFile uploadFile = fileMapper.getFile(file_no);
 
         File file = new File(UPLOAD_DIRECTORY + "\\" + uploadFile.getSave_file_nm() + "." + uploadFile.getExt());
@@ -39,7 +42,10 @@ public class FileService {
                     ErrorCode.FAIL_TO_DOWNLOAD_FILE.getMessage()
             );
         }
-        return file;
+        return GetOriginNameFileDTO.builder()
+                .originName(uploadFile.getOrigin_file_nm().substring(0, uploadFile.getOrigin_file_nm().lastIndexOf(".")))
+                .file(file)
+                .build();
     }
 
     /**
@@ -51,6 +57,7 @@ public class FileService {
      */
     @Transactional
     public List<FileResponseDTO> uploadFiles(List<MultipartFile> files, int board_no, String category_cd) throws IOException {
+        String categoryCode = commonService.getCategoryCode(category_cd);
         List<FileResponseDTO> fileList = new ArrayList<>();
         if (files == null) {
             return fileList;

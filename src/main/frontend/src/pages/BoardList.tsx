@@ -3,15 +3,16 @@ import newImage from "../images/new.gif";
 import { useBoardList } from "../hooks/useBoardList";
 import { useCategory } from "../hooks/useCategory";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { RequestBoardListState } from "../store/BoardListState";
+import { useState } from "react";
 
 export default function BoardList() {
   const navigate = useNavigate();
   const [request, setRequest] = useRecoilState(RequestBoardListState);
-  const [searchText, setSearchText] = useState<string>("");
-  const [searchCode, setsearchCode] = useState<string>("");
+
+  const [searchText, setSearchText] = useState<string>(request.search);
+  const [searchCode, setsearchCode] = useState<string>(request.src_cd);
   const { boardList } = useBoardList(request);
   const { category } = useCategory();
 
@@ -30,8 +31,8 @@ export default function BoardList() {
       alert("검색어를 입력하세요");
       return;
     }
-    setRequest(prev => ({
-      ...prev,
+    setRequest((p) => ({
+      ...p,
       search: searchText,
       src_cd: searchCode,
     }));
@@ -155,14 +156,13 @@ export default function BoardList() {
             <tr key={b.board_no}>
               <td>{(request.page_no - 1) * request.page_size + index + 1}</td>
               <td>{b.category_cd}</td>
-              <td className="l">
-                <a
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(`/board/${b.board_no}`);
-                  }}
-                  style={{ cursor: "pointer" }}
-                >
+              <td className="l"
+               onClick={(e) => {
+                e.preventDefault();
+                navigate(`/board/${b.board_no}`);
+              }}
+              style={{ cursor: "pointer" }}>
+                <a>
                   {b.title}
                   {isNew(b.reg_dt) && <img src={newImage} className="new" />}
                 </a>

@@ -4,8 +4,14 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.example.board_project.mapper.CommonMapper">
-<select id="getCategory" resultType="Common">
-    SELECT comm_cd, comm_cd_nm FROM bt_tb_comm_code
-    WHERE grp_cd = 'CTG'
-</select>
+    <select id="getCategory" resultType="Common">
+        SELECT comm_cd, comm_cd_nm FROM bt_tb_comm_code
+        WHERE grp_cd = 'CTG'
+    </select>
+
+    <select id="getCategoryCode" resultType="string">
+        SELECT comm_cd
+        FROM bt_tb_comm_code
+        WHERE comm_cd_nm = #{name}
+    </select>
 </mapper>
