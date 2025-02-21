@@ -3,7 +3,6 @@ import { Editor } from "@toast-ui/react-editor";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useCategory } from "../hooks/useCategory";
 import { writeBoard, updateBoard } from "../api/BoardApi";
-import { uploadImage } from "../api/FileApi";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import { RequestBoard } from "../types/request/requestBoard";
 import { downloadFile, deleteFile } from "../api/FileApi";
@@ -216,9 +215,15 @@ export default function BoardWrite() {
 
   const handleInputChange = useCallback(
     (field: keyof RequestBoard, value: string) => {
-      setReqBoard((prev) => ({ ...prev, [field]: value }));
+      if (field === 'cont') {
+        // Only allow markdown content for cont field
+        const markdownContent = editorRef.current?.getInstance().getMarkdown() || '';
+        setReqBoard((prev) => ({ ...prev, cont: markdownContent }));
+      } else {
+        setReqBoard((prev) => ({ ...prev, [field]: value }));
+      }
     },
-    []
+    [editorRef]
   );
 
   return (
@@ -321,18 +326,6 @@ export default function BoardWrite() {
                   initialEditType="markdown"
                   useCommandShortcut={true}
                   onChange={(e: string) => handleInputChange("cont", e)}
-                  hooks={{
-                    addImageBlobHook: (blob: Blob, callback: (url: string) => void) => {
-                      const formData = new FormData();
-                      formData.append("image", blob);
-                      uploadImage(formData).then((res) => {
-                        const url = "http://localhost:8080/upload/";
-                        callback(url+res);
-                      }).catch((err) => {
-                        console.error(err);
-                      });
-                    },
-                  }}
                 />
               </td>
             </tr>
