@@ -7,9 +7,16 @@ import org.example.board_project.model.dto.requestDTO.board.BoardListRequestDTO;
 import org.example.board_project.model.dto.requestDTO.board.WriteBoardRequestDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardListResponseDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
+import org.example.board_project.model.dto.responseDTO.file.FileResponseDTO;
 import org.example.board_project.service.board.BoardService;
+import org.example.board_project.service.file.FileService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/board")
@@ -17,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class BoardController {
     private final BoardService boardService;
+    private final FileService fileService;
 
     /**
      * @param category_cd - 카테고리 코드 (전체(null), 공지, 중요, 일반)
@@ -47,7 +55,7 @@ public class BoardController {
      * @param no - 게시글 번호
      * @return Board
      * @throws BoardException (상태코드 : 404 Not Found)
-     *                        게시글 조회 : board_no(게시글 번호)를 통해 게시글 조회수 증가 후 게시글 객체 반환
+     *                        게시글 조회 : board_no(게시글 번호)를 통해 게시글 조회, 게시글 객체 반환
      *                        번호에 맞는 게시글이 존재하지 않을 때 404 Error 반환
      */
     @GetMapping("/{no}")
@@ -63,9 +71,14 @@ public class BoardController {
      *                        게시글 작성 : 게시글 작성 후 게시글 객체 반환
      *                        작성에 실패하면 503 Error 반환
      */
-    @PostMapping("/")
-    public ResponseEntity<Object> writeBoard(@RequestBody WriteBoardRequestDTO DTO) {
+    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> writeBoard(
+            @RequestPart("dto") WriteBoardRequestDTO DTO,
+            @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> uploadFiles
+    ) throws IOException {
         BoardResponseDTO board = boardService.saveBoard(DTO);
+        List<FileResponseDTO> files = fileService.uploadFiles(uploadFiles, DTO.getBoardNo(), DTO.getCategory_cd());
+        board = BoardResponseDTO.of(board, files);
         return ResponseEntity.ok().body(board);
     }
 
@@ -80,9 +93,14 @@ public class BoardController {
     @PutMapping("/{no}")
     public ResponseEntity<Object> updateBoard(
             @PathVariable int no,
-            @RequestBody WriteBoardRequestDTO DTO) {
-        WriteBoardRequestDTO dto = WriteBoardRequestDTO.from(no, DTO);
+            @RequestPart("dto") WriteBoardRequestDTO DTO,
+            @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> uploadFiles,
+            @RequestPart(value = "deleteFiles", required = false ) List<Integer> deleteFiles
+    ) throws IOException {
+        WriteBoardRequestDTO dto = WriteBoardRequestDTO.of(no, DTO);
         BoardResponseDTO board = boardService.updateBoard(dto);
+        List<FileResponseDTO> files = fileService.updateFiles(deleteFiles, uploadFiles, no, DTO.getCategory_cd());
+        board = BoardResponseDTO.of(board, files);
         return ResponseEntity.ok().body(board);
     }
 
@@ -112,6 +130,16 @@ public class BoardController {
             @RequestParam int no,
             @RequestParam String password) {
         boolean result = boardService.authBoard(no, password);
+        return ResponseEntity.ok().body(result);
+    }
+
+    /**
+     * @param no - 게시글 번호
+     * @return boolean - 게시글 조회수 1 증가 후 true 반환
+     */
+    @PatchMapping("/{no}")
+    public ResponseEntity<Object> addViewCnt(@PathVariable int no) {
+        boolean result = boardService.addViewCnt(no);
         return ResponseEntity.ok().body(result);
     }
 }

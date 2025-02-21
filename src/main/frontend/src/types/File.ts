@@ -1,8 +1,6 @@
 export interface File {
-    no : number
-    original_file_nm : string
+    file_no : number
+    origin_file_nm : string
     save_file_nm : string
-    save_path : string
     ext : string
-    size : number
 }

@@ -27,6 +27,7 @@ public class BoardListRequestDTO {
     private int offset;
     private int size;
 
+//    객체 생성을 위한 정적 팩토리 메소드
     public static BoardListRequestDTO create(String category_cd, String searchCode, String search, String sortCode, int offset, int size) {
         if(!StringUtils.hasText(category_cd)) category_cd = null;
         if(!StringUtils.hasText(searchCode)) searchCode = null;

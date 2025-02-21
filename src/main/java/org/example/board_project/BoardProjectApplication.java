@@ -6,9 +6,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+
 
 @SpringBootApplication
 @MapperScan
+@EnableEncryptableProperties
 public class BoardProjectApplication {
 
     public static void main(String[] args) {
@@ -22,7 +25,7 @@ public class BoardProjectApplication {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
                         .allowedOrigins("http://localhost:5173")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowCredentials(true);
             }
         };

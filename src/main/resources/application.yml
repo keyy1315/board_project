@@ -1,13 +1,22 @@
 spring:
   application:
     name: board_project
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+      enabled: true
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://1.248.227.176:3306/edu02
-    username: edu02_user
-    password: '!qa2wS'
+    url: ENC(JXSHd5pgf4N9/tL1nINHoDXMa9p/mos5ohb8124yW3hvi9ObUAgYTsWGCFsMWcoK)
+    username: ENC(eULJFpEalRIKck0MRWK4EPtHtHLw7rtk)
+    password: ENC(njq8V8JJpsfEhKLhToWwsQ==)
 
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
-  type-aliases-package: org.example.board_project.model, org.example.board_project.model.dto.requestDTO.board
+  type-aliases-package: org.example.board_project.model, org.example.board_project.model.dto.requestDTO.board, org.example.board_project.model.dto.responseDTO.file, org.example.board_project.model.dto.requestDTO.file
 
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    password: keyy1315

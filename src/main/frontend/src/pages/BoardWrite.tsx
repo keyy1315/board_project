@@ -1,115 +1,225 @@
 import { useNavigate } from "react-router-dom";
 import { Editor } from "@toast-ui/react-editor";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { useCategory } from "../hooks/useCategory";
-import { writeBoard, getBoard, updateBoard } from "../api/BoardApi";
+import { writeBoard, updateBoard } from "../api/BoardApi";
+import { uploadImage } from "../api/FileApi";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import { RequestBoard } from "../types/request/requestBoard";
+import { downloadFile, deleteFile } from "../api/FileApi";
+import { useRecoilState } from "recoil";
+import {
+  uploadFileListState,
+  fileListState,
+  deletedFileNosState,
+} from "../store/FileState.ts";
+import { useBoard } from "../hooks/useBoard.ts";
 
 export default function BoardWrite() {
   const navigate = useNavigate();
   const editorRef = useRef<Editor>(null);
+
+  const params = new URLSearchParams(window.location.search);
+  const boardNo = params.get("n");
+  const { board } = useBoard(Number(boardNo));
   const { category } = useCategory();
-  const [board, setBoard] = useState<RequestBoard>({
+
+  const [fileList, setFileList] = useRecoilState(fileListState);
+  const [deletedFileNos, setDeletedFileNos] =
+    useRecoilState(deletedFileNosState);
+  const [uploadFileList, setUploadFileList] =
+    useRecoilState(uploadFileListState);
+  const [isModify, setIsModify] = useState(false);
+  const [fileInputs, setFileInputs] = useState<{ [key: number]: boolean }>({});
+
+  const [reqBoard, setReqBoard] = useState<RequestBoard>({
     board_no: null,
     category_cd: "",
     title: "",
     cont: "",
     writer_nm: "",
     password: "",
-    file: null,
   });
-  const [isModify, setIsModify] = useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const boardNo = params.get("n");
-
-    if (boardNo) {
+    if (boardNo && board) {
       setIsModify(true);
-      getBoard(Number(boardNo)).then((data) => {
-        setBoard({
-          board_no: data.board_no,
-          category_cd: data.category_cd,
-          title: data.title,
-          cont: data.cont,
-          writer_nm: data.writer_nm,
-          password: "",
-          file:
-            data.file?.map((f) => ({
-              original_file_nm: f.original_file_nm,
-              save_file_nm: f.save_file_nm,
-              save_path: f.save_path,
-              ext: f.ext,
-              size: f.size,
-            })) || null,
-        });
-        // 에디터에 내용 설정
-        if (editorRef.current) {
-          editorRef.current.getInstance().setMarkdown(data.cont);
-        }
+      setReqBoard({
+        board_no: board.board_no ?? null,
+        category_cd: board.category_cd ?? "",
+        title: board.title ?? "",
+        cont: board.cont ?? "",
+        writer_nm: board.writer_nm ?? "",
+        password: "",
       });
-    }
-  }, []);
+      setFileList(board.files || []);
 
-  const handleSubmit = async (e: React.MouseEvent, isModify: boolean) => {
-    e.preventDefault();
+      if (editorRef.current) {
+        editorRef.current.getInstance().setMarkdown(board.cont ?? "");
+      }
+    }
+  }, [board, boardNo, isModify, setIsModify, setReqBoard, setFileList]);
 
-    if (!board?.writer_nm?.trim()) {
-      alert("작성자를 입력하세요");
-      return;
-    }
-    if (!board?.password?.trim()) {
-      alert("비밀번호를 입력하세요");
-      return;
-    }
-    if (!board?.category_cd) {
-      alert("카테고리를 선택하세요");
-      return;
-    }
-    if (!board?.title?.trim()) {
-      alert("제목을 입력하세요");
-      return;
-    }
+  const handleSubmit = useCallback(
+    async (e: React.MouseEvent, isModify: boolean) => {
+      e.preventDefault();
 
-    const editorContent = editorRef.current?.getInstance().getMarkdown();
-    if (!editorContent?.trim()) {
-      alert("내용을 입력하세요");
-      return;
-    }
+      if (!reqBoard?.password?.trim()) {
+        alert("비밀번호를 입력하세요");
+        (
+          document.querySelector('input[type="password"]') as HTMLInputElement
+        )?.focus();
+        return;
+      }
+      if (!reqBoard?.category_cd) {
+        alert("카테고리를 선택하세요");
+        return;
+      }
+      if (!reqBoard?.title?.trim()) {
+        alert("제목을 입력하세요");
+        return;
+      }
+      const editorContent = editorRef.current?.getInstance().getMarkdown();
+      if (!editorContent?.trim()) {
+        alert("내용을 입력하세요");
+        return;
+      }
 
-    const updatedBoard = {
-      ...board,
-      cont: editorContent
-    };
+      if (fileList.length === 0 && uploadFileList.length === 0) {
+        alert("첨부파일 1개 이상 첨부해주세요.");
+        return;
+      }
 
-    if (isModify) {
-      if (!updatedBoard.board_no) return;
-      updateBoard(updatedBoard, updatedBoard.board_no)
-        .then((r) => {
-          if (r.board_no != null) {
+      // Check total file size
+      const totalSize = uploadFileList.reduce(
+        (acc, file) => acc + file.size,
+        0
+      );
+      const maxSize = 200 * 1024 * 1024; // 200MB in bytes
+      if (totalSize > maxSize) {
+        alert("첨부파일의 총 크기가 200MB를 초과할 수 없습니다.");
+        return;
+      }
+
+      if (isModify) {
+        if (!confirm("게시글을 수정하시겠습니까?")) return;
+        if (!reqBoard.board_no) return;
+
+        try {
+          const response = await updateBoard(
+            reqBoard,
+            reqBoard.board_no,
+            uploadFileList,
+            deletedFileNos
+          );
+          if (response.board_no != null) {
             alert("게시글이 수정되었습니다.");
-            navigate("/");
+            navigate(`/board/${response.board_no}`);
           }
-        })
-        .catch((error) => {
+        } catch (error) {
           alert("게시글 수정에 실패했습니다.");
           console.error(error);
-        });
-    } else {
-      writeBoard(updatedBoard)
-        .then((r) => {
-          if (r) {
+        }
+      } else {
+        if (!reqBoard?.writer_nm?.trim()) {
+          alert("작성자를 입력하세요");
+          return;
+        }
+
+        if (!confirm("게시글을 저장하시겠습니까?")) return;
+
+        try {
+          const response = await writeBoard(reqBoard, uploadFileList);
+          if (response) {
             alert("게시글이 등록되었습니다.");
-            navigate("/");
+            window.location.href = "/";
           }
-        })
-        .catch((error) => {
+        } catch (error) {
           alert("게시글 등록에 실패했습니다.");
           console.error(error);
+        }
+      }
+    },
+    [reqBoard, fileList, uploadFileList, deletedFileNos, navigate]
+  );
+
+  const handleClickFile = useCallback((fileNo: number) => {
+    downloadFile(fileNo);
+  }, []);
+
+  const handleDeleteFile = useCallback((fileNo: number) => {
+    if (!confirm("첨부파일을 삭제하시겠습니까?")) return;
+    deleteFile(fileNo).then((r) => {
+      if (r) {
+        alert("첨부파일이 삭제되었습니다.");
+        window.location.reload();
+      }
+    });
+  }, []);
+
+  const handleFileChange = useCallback(
+    (
+      e: React.ChangeEvent<HTMLInputElement>,
+      fileNo: number | null,
+      index: number
+    ) => {
+      const files = e.target.files;
+      if (!files) return;
+
+      const file = files[0];
+      const maxSize = 200 * 1024 * 1024; // 200MB in bytes
+
+      if (file.size > maxSize) {
+        alert("파일 크기가 200MB를 초과할 수 없습니다.");
+        e.target.value = "";
+        return;
+      }
+
+      if (!fileInputs[index]) {
+        // 처음 파일 선택시
+        setFileInputs((prev) => ({ ...prev, [index]: true }));
+        setUploadFileList((prev) => [...prev, file]);
+        if (fileNo !== null) {
+          setDeletedFileNos((prev) => [...prev, fileNo]);
+        }
+      } else {
+        setUploadFileList((prev) => {
+          const newList = [...prev];
+          newList[index] = file;
+          return newList;
         });
-    }
-  };
+      }
+
+      const fileInput = e.target;
+      // 기존 삭제 아이콘이 있다면 제거
+      const existingDeleteIcon =
+        fileInput.parentNode?.querySelector("#input-delete-icon");
+      if (existingDeleteIcon) {
+        existingDeleteIcon.remove();
+      }
+
+      // 새로운 삭제 아이콘 추가
+      const deleteIcon = document.createElement("a");
+      deleteIcon.className = "ic-del cursor-pointer ml-2";
+      deleteIcon.id = "input-delete-icon";
+      deleteIcon.style.cursor = "pointer";
+      deleteIcon.onclick = () => {
+        setUploadFileList((prev) => prev.filter((_, i) => i !== index));
+        setFileInputs((prev) => ({ ...prev, [index]: false }));
+        fileInput.value = ""; // Clear the file input
+        deleteIcon.remove();
+      };
+      fileInput.parentNode?.appendChild(deleteIcon);
+    },
+    [fileInputs, setUploadFileList, setDeletedFileNos]
+  );
+
+  const handleInputChange = useCallback(
+    (field: keyof RequestBoard, value: string) => {
+      setReqBoard((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
 
   return (
     <div>
@@ -141,11 +251,9 @@ export default function BoardWrite() {
                   type="text"
                   className="input block"
                   value={board?.writer_nm}
+                  readOnly={isModify}
                   onChange={(e) =>
-                    setBoard((p) => ({
-                      ...p,
-                      writer_nm: e.target.value,
-                    }))
+                    handleInputChange("writer_nm", e.target.value)
                   }
                 />
               </td>
@@ -156,9 +264,9 @@ export default function BoardWrite() {
                 <input
                   type="password"
                   className="input block"
-                  value={board?.password}
+                  value={reqBoard?.password}
                   onChange={(e) =>
-                    setBoard((prev) => ({ ...prev, password: e.target.value }))
+                    handleInputChange("password", e.target.value)
                   }
                 />
               </td>
@@ -171,12 +279,9 @@ export default function BoardWrite() {
                 <select
                   className="select"
                   style={{ width: "150px" }}
-                  value={board?.category_cd}
+                  value={reqBoard?.category_cd}
                   onChange={(e) =>
-                    setBoard((prev) => ({
-                      ...prev,
-                      category_cd: e.target.value,
-                    }))
+                    handleInputChange("category_cd", e.target.value)
                   }
                 >
                   <option value="">선택</option>
@@ -197,10 +302,8 @@ export default function BoardWrite() {
                   type="text"
                   className="input"
                   style={{ width: "100%" }}
-                  value={board.title}
-                  onChange={(e) =>
-                    setBoard((prev) => ({ ...prev, title: e.target.value }))
-                  }
+                  value={reqBoard?.title}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
                 />
               </td>
             </tr>
@@ -217,43 +320,82 @@ export default function BoardWrite() {
                   width="100%"
                   initialEditType="markdown"
                   useCommandShortcut={true}
+                  onChange={(e: string) => handleInputChange("cont", e)}
+                  hooks={{
+                    addImageBlobHook: (blob: Blob, callback: (url: string) => void) => {
+                      const formData = new FormData();
+                      formData.append("image", blob);
+                      uploadImage(formData).then((res) => {
+                        const url = "http://localhost:8080/upload/";
+                        callback(url+res);
+                      }).catch((err) => {
+                        console.error(err);
+                      });
+                    },
+                  }}
                 />
               </td>
             </tr>
-            <tr>
-              <th className="fir">
-                첨부파일 1 <i className="req">*</i>
-              </th>
-              <td colSpan={3}>
-                <span>
-                  <a href="">상담내역1.xlsx</a>
-                  <a href="" className="ic-del">
-                    삭제
-                  </a>
-                </span>
-                <br />
-                <input type="file" className="input block mt10" />
-              </td>
-            </tr>
-            <tr>
-              <th className="fir">첨부파일 2</th>
-              <td colSpan={3}>
-                <span>
-                  <a href="">상담내역2.xlsx</a>
-                  <a href="" className="ic-del">
-                    삭제
-                  </a>
-                </span>
-                <br />
-                <input type="file" className="input block mt10" />
-              </td>
-            </tr>
-            <tr>
-              <th className="fir">첨부파일 3</th>
-              <td colSpan={3}>
-                <input type="file" className="input block mt10" />
-              </td>
-            </tr>
+            {isModify
+              ? Array.from({ length: 3 }).map((_, index) => (
+                  <tr key={index}>
+                    <th className="fir">
+                      첨부파일 {index + 1}{" "}
+                      {index === 0 && <i className="req">*</i>}
+                    </th>
+                    <td colSpan={3}>
+                      {index < fileList.length ? (
+                        <>
+                          <span>
+                            <a
+                              className="cursor-pointer mx-2.5"
+                              onClick={() =>
+                                handleClickFile(fileList[index].file_no)
+                              }
+                            >
+                              {fileList[index].origin_file_nm}
+                            </a>
+                            <a
+                              className="ic-del cursor-pointer ml-2"
+                              onClick={() =>
+                                handleDeleteFile(fileList[index].file_no)
+                              }
+                            >
+                              삭제
+                            </a>
+                          </span>
+                          <br />
+                        </>
+                      ) : null}
+                      <input
+                        type="file"
+                        className="input block mt-2"
+                        onChange={(e) => {
+                          if (fileList.length > 0) {
+                            handleFileChange(e, fileList[index].file_no, index);
+                          } else {
+                            handleFileChange(e, null, index);
+                          }
+                        }}
+                      />
+                    </td>
+                  </tr>
+                ))
+              : Array.from({ length: 3 }).map((_, index) => (
+                  <tr key={index}>
+                    <th className="fir">
+                      첨부파일 {index + 1}{" "}
+                      {index === 0 && <i className="req">*</i>}
+                    </th>
+                    <td colSpan={3}>
+                      <input
+                        type="file"
+                        className="input block mt-2"
+                        onChange={(e) => handleFileChange(e, null, index)}
+                      />
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
 

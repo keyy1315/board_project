@@ -9,6 +9,8 @@ import org.example.board_project.model.dto.requestDTO.board.WriteBoardRequestDTO
 import org.example.board_project.model.dto.responseDTO.board.BoardListResponseDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
 import org.example.board_project.model.Board;
+import org.example.board_project.model.dto.responseDTO.file.FileResponseDTO;
+import org.example.board_project.service.file.FileService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -20,6 +22,8 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class BoardService {
+    private final FileService fileService;
+
     private final BoardMapper boardMapper;
 
     /**
@@ -37,10 +41,10 @@ public class BoardService {
     public BoardListResponseDTO findBoardList(BoardListRequestDTO dto) {
         List<Board> boards = boardMapper.findWithFilter(dto);
 
-//      mapper 에서 찾은 데이터 없으면 null 반환
+//      mapper 에서 찾은 데이터 없으면 빈 배열 반환
         if (boards.isEmpty()) {
             return BoardListResponseDTO.builder()
-                    .boards(null)
+                    .boards(new ArrayList<>())
                     .total(0)
                     .build();
         }
@@ -84,19 +88,9 @@ public class BoardService {
      * @return BoardResponseDTO - [게시글 번호, 카데고리 코드, 제목, 내용, 작성자명, 조회수, 작성 날짜, 수정 날짜]
      * @throws BoardException (NONEXISTENT_BOARD) : 404
      */
-    @Transactional
     public BoardResponseDTO findBoard(int no) {
-//        게시글 조회 시 조회수 +1, update 된 행이 1개면 (조회수 update = true) board DTO 로 변환 후 반환
-        if (boardMapper.IncrementViewCnt(no) == 1) {
-            Board board = boardMapper.findBoard(no);
-            return conversionBoardToDTO(Objects.requireNonNull(board));
-        } else {
-//          조회수가 update 되지 않았다면 (인수로 넘겨받은 번호에 맞는 게시글이 없다면) throw Board Exception (404)
-            throw new BoardException(
-                    ErrorCode.NONEXISTENT_BOARD.getHttpStatus(),
-                    ErrorCode.NONEXISTENT_BOARD.getMessage()
-            );
-        }
+        Board board = boardMapper.findBoard(no);
+        return conversionBoardToDTO(Objects.requireNonNull(board));
     }
 
     /**
@@ -132,12 +126,12 @@ public class BoardService {
      * @param no - 게시글 번호
      * @return boolean
      * @throws BoardException (NONEXISTENT_BOARD, FAIL_TO_DELETE_BOARD) : 404, 503
-     * 삭제된 행의 개수가 1개면 true 반환
+     *                        삭제된 행의 개수가 1개면 true 반환
      */
     @Transactional
     public Boolean deleteBoard(int no) {
 //      DB 에 게시글 존재하는 지 확인, 없으면 throw Board Exception (404)
-        if(boardMapper.findBoard(no) == null) {
+        if (boardMapper.findBoard(no) == null) {
             throw new BoardException(
                     ErrorCode.NONEXISTENT_BOARD.getHttpStatus(),
                     ErrorCode.NONEXISTENT_BOARD.getMessage()
@@ -160,9 +154,9 @@ public class BoardService {
      * @param password - 게시글 비밀번호
      * @return boolean - 비밀번호 일치 여부
      * @throws BoardException (DTO_OBJECT_IS_EMPTY, NONEXISTENT_BOARD) : 400, 404
-     * 비밀번호에 빈 값이 들어오면 BoardException (400) 반환
-     * 게시글 번호에 비밀번호가 저장되지 않았거나 찾을 수 없는 게시글이라면 NonExistent Board Exception (404) 반환
-     * DB 에 저장된 비밀번호와 일치하다면 true 반환
+     *                        비밀번호에 빈 값이 들어오면 BoardException (400) 반환
+     *                        게시글 번호에 비밀번호가 저장되지 않았거나 찾을 수 없는 게시글이라면 NonExistent Board Exception (404) 반환
+     *                        DB 에 저장된 비밀번호와 일치하다면 true 반환
      */
     public boolean authBoard(int no, String password) {
 //      넘겨받은 password 가 빈 값이면 BoardException 반환
@@ -183,11 +177,28 @@ public class BoardService {
     }
 
     /**
+     * @param no       - board pk
+     * @return boolean - 게시글 pk 를 인자로 조회수 증가 후 true 반환
+     */
+    public boolean addViewCnt(int no) {
+        if(boardMapper.IncrementViewCnt(no) == 1){
+            return true;
+        } else {
+            throw new BoardException(
+                    ErrorCode.FAIL_TO_UPDATE_BOARD.getHttpStatus(),
+                    ErrorCode.FAIL_TO_UPDATE_BOARD.getMessage()
+            );
+        }
+    }
+
+    /**
      * @param board - Entity
      * @return BoardResponseDTO - [게시글 번호, 카데고리 코드, 제목, 내용, 작성자명, 조회수, 작성 날짜, 수정 날짜]
      * DB에 담긴 비밀번호를 프론트에 넘기지 않기 위해 Board Entity 를 DTO 로 변환하는 메소드
      */
     private BoardResponseDTO conversionBoardToDTO(Board board) {
+        List<FileResponseDTO> files = fileService.getFilesByBoardNo(board.getBoard_no());
+
         return BoardResponseDTO.builder()
                 .board_no(board.getBoard_no())
                 .category_cd(board.getComm_cd_nm())
@@ -197,6 +208,7 @@ public class BoardService {
                 .view_cnt(board.getView_cnt())
                 .reg_dt(board.getReg_dt())
                 .mod_dt(board.getMod_dt())
+                .files(files)
                 .build();
     }
 

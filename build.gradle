@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
@@ -34,50 +34,52 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.jasypt:jasypt:1.9.3'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    systemProperty "jasypt.encryptor.password", System.getProperty("jasypt.encryptor.password")
 }
 
 
-//def frontendDir = "$projectDir/src/main/frontend"
-//
-//sourceSets {
-//    main {
-//        resources { srcDirs(["$projectDir/src/main/resources"]) }
-//    }
-//}
-//
-//processResources {
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    dependsOn("copyReactBuildFiles") }
-//
-//task installReact(type: Exec) {
-//    workingDir("$frontendDir")
-//    inputs.dir("$frontendDir")
-//    group = BasePlugin.BUILD_GROUP
-//    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-//        commandLine "bun", "install"
-//    } else {
-//        commandLine "bun", "install"
-//    }
-//}
-//
-//task buildReact(type: Exec) {
-//    dependsOn("installReact")
-//    workingDir("$frontendDir")
-//    inputs.dir("$frontendDir")
-//    group = BasePlugin.BUILD_GROUP
-//    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-//        commandLine "bun", "run", "build"
-//    } else {
-//        commandLine "bun", "run", "build"
-//    }
-//}
-//
-//task copyReactBuildFiles(type: Copy) {
-//    dependsOn("buildReact")
-//    from("$frontendDir/dist")
-//    into("$projectDir/src/main/resources/static")
-//}
+def frontendDir = "$projectDir/src/main/frontend"
+
+sourceSets {
+    main {
+        resources { srcDirs(["$projectDir/src/main/resources"]) }
+    }
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn("copyReactBuildFiles") }
+
+task installReact(type: Exec) {
+    workingDir("$frontendDir")
+    inputs.dir("$frontendDir")
+    group = BasePlugin.BUILD_GROUP
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "bun", "install"
+    } else {
+        commandLine "bun", "install"
+    }
+}
+
+task buildReact(type: Exec) {
+    dependsOn("installReact")
+    workingDir("$frontendDir")
+    inputs.dir("$frontendDir")
+    group = BasePlugin.BUILD_GROUP
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "bun", "run", "build"
+    } else {
+        commandLine "bun", "run", "build"
+    }
+}
+
+task copyReactBuildFiles(type: Copy) {
+    dependsOn("buildReact")
+    from("$frontendDir/dist")
+    into("$projectDir/src/main/resources/static")
+}

@@ -12,8 +12,8 @@ export const useBoardList = (requestBoardList: RequestBoardList) => {
     queryKey: ["boardList", requestBoardList],
     queryFn: () => getBoardList(requestBoardList),
     initialData: { boards: [], total: 0 },
-    enabled: !!requestBoardList, // RequestBoardList가 있을 때만 쿼리 실행
-    gcTime: Infinity,  // Changed from cacheTime to gcTime
+    enabled: !!requestBoardList, 
+    gcTime: Infinity,  
   });
 
   if (error) throw error;

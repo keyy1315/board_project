@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.board_project.mapper.FileMapper">
+    <select id="getFile" parameterType="int" resultType="BoardFile">
+        SELECT * FROM bt_tb_file
+        WHERE file_no = #{file_no}
+    </select>
+
+    <insert id="saveFile" parameterType="BoardFile" useGeneratedKeys="true" keyProperty="file_no">
+        INSERT INTO bt_tb_file
+        (origin_file_nm, save_file_nm, save_path, ext, size, ref_tbl, ref_pk, ref_key, download_cnt, reg_dt)
+        VALUES
+        (#{origin_file_nm}, #{save_file_nm}, #{save_path}, #{ext}, #{size}, #{ref_tbl}, #{ref_pk}, #{ref_key}, 0, NOW())
+    </insert>
+
+    <select id="getFilesByBoardNo" parameterType="int" resultType="FileResponseDTO">
+        SELECT file_no, origin_file_nm, save_file_nm, ext
+        FROM bt_tb_file
+        WHERE ref_pk = #{board_no}
+    </select>
+
+    <delete id="deleteFiles" parameterType="int">
+        DELETE FROM bt_tb_file
+        WHERE file_no = #{file_no}
+    </delete>
+</mapper>

@@ -20,9 +20,14 @@ export default function Popup({
     authBoard(board_no, password).then((resp) => {
       if (resp) {
         if (isDelete) {
-          deleteBoard(board_no).then((r) => {
-            if(r) navigate('/');
-          });
+          if (confirm("게시글을 삭제하시겠습니까?")) {
+            deleteBoard(board_no).then((r) => {
+              if (r) {
+                alert("게시글이 삭제되었습니다.");
+              window.location.href = "/";
+              }
+            });
+          }
         } else {
           navigate(`/board/write?n=${board_no}`);
         }

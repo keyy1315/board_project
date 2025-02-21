@@ -6,13 +6,11 @@
 <mapper namespace="org.example.board_project.mapper.BoardMapper">
     <select id="countBoard" parameterType="BoardListRequestDTO" resultType="int">
         SELECT COUNT(*) FROM bt_tb_board as b
-<!--        조건문 결과에 따라 곧바로 and 가 입력되어도 sql 오류가 나지 않게 하기 위한 always true 구문 -->
         WHERE 1=1
-<!--        카테고리 코드 필터 -->
         <if test="category_cd != null">
             AND b.category_cd = #{category_cd}
         </if>
-<!--        검색어 필터 -->
+
         <if test="search != null">
             <choose>
                 <when test="searchCode eq 'all' or searchCode eq null">
@@ -48,16 +46,15 @@
         b.reg_dt,
         b.mod_dt
         FROM bt_tb_board as b
-        <!-- join 조건 -->
+
         INNER JOIN bt_tb_comm_code as c
         ON b.category_cd = c.comm_cd
-        <!-- 조건문 결과에 따라 곧바로 and 가 입력되어도 sql 오류가 나지 않게 하기 위한 always true 구문 -->
         WHERE 1=1
-<!--        카테고리 필터 -->
+
         <if test="category_cd != null">
             AND b.category_cd = #{category_cd}
         </if>
-<!--        검색어 필터 -->
+
         <if test="search != null">
             <choose>
                 <when test="searchCode eq 'all' or searchCode eq null">
@@ -78,7 +75,7 @@
                 </otherwise>
             </choose>
         </if>
-<!--        정렬 필터 -->
+
         <if test="sortCode != null">
             ORDER BY
             <choose>
@@ -93,11 +90,11 @@
         <if test="sortCode == null">
             ORDER BY b.reg_dt DESC
         </if>
-<!--        페이지네이션 -->
+
         LIMIT #{size} OFFSET #{offset}
     </select>
 
-<!-- 게시글 저장 -->
+
     <insert id="saveBoard" parameterType="WriteBoardRequestDTO" useGeneratedKeys="true" keyProperty="boardNo">
         INSERT INTO bt_tb_board
         (category_cd, title, cont, writer_nm, password, view_cnt, reg_dt)
@@ -105,14 +102,14 @@
         (#{category_cd}, #{title}, #{cont}, #{writer_nm}, #{password}, 0, NOW())
     </insert>
 
-<!-- 게시글 수정 -->
+
     <update id="updateBoard" parameterType="WriteBoardRequestDTO">
         UPDATE bt_tb_board
         SET title = #{title}, cont = #{cont}, writer_nm = #{writer_nm}, mod_dt = NOW(), category_cd = #{category_cd}
         WHERE board_no = #{boardNo}
     </update>
 
-<!-- 게시글 조회 -->
+
     <select id="findBoard" parameterType="int">
         SELECT
         board_no, category_cd as comm_cd_nm,
@@ -121,7 +118,6 @@
         WHERE board_no = #{boardNo}
     </select>
 
-<!-- 조회수 증가 -->
     <update id="IncrementViewCnt" parameterType="int">
         UPDATE bt_tb_board
         SET view_cnt = view_cnt + 1
