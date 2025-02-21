@@ -13,6 +13,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommonService {
     private final CommonMapper commonMapper;
+
+    /**
+     * @return 카테고리 드롭다운 구현을 위한 카테고리 리스트 조회
+     */
     public List<Common> getCategory() {
         List<Common> commonList = commonMapper.getCategory();
         if(commonList.isEmpty()) {

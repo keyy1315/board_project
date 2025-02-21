@@ -1,4 +1,3 @@
-
 import Header from "./component/Header";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./component/Footer";
@@ -14,10 +13,10 @@ import BoardWrite from "./pages/BoardWrite";
 const queryClient = new QueryClient();
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
-      <RecoilRoot>
-        <BrowserRouter>
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={false} />
+        <BrowserRouter future={{v7_relativeSplatPath: true, v7_startTransition: true}}>
           <Header />
           <Routes>
             <Route path="/" element={<SideBar />}>
@@ -28,10 +27,9 @@ function App() {
           </Routes>
           <Footer />
         </BrowserRouter>
-      </RecoilRoot>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </RecoilRoot>
   );
 }
-
 
 export default App;

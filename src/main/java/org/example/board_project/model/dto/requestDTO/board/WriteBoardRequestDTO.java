@@ -3,12 +3,13 @@ package org.example.board_project.model.dto.requestDTO.board;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.example.board_project.model.dto.requestDTO.file.FileRequestDTO;
+import lombok.NoArgsConstructor;
 
 /**
  * 글 작성/수정 요청할 때 전송하는 데이터 객체
  */
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Builder
 public class WriteBoardRequestDTO {
@@ -18,9 +19,9 @@ public class WriteBoardRequestDTO {
     private String cont;
     private String category_cd;
     private int boardNo;
-    private FileRequestDTO file;
 
-    public static WriteBoardRequestDTO from(int boardNo, WriteBoardRequestDTO dto) {
+//    게시글 수정 시 게시글 번호와 새로운 내용 객체 생성을 위한 of 메소드
+    public static WriteBoardRequestDTO of(int boardNo, WriteBoardRequestDTO dto) {
         return WriteBoardRequestDTO.builder()
                 .boardNo(boardNo)
                 .writer_nm(dto.getWriter_nm())
@@ -28,7 +29,6 @@ public class WriteBoardRequestDTO {
                 .title(dto.getTitle())
                 .cont(dto.getCont())
                 .category_cd(dto.getCategory_cd())
-                .file(dto.getFile())
                 .build();
     }
 }

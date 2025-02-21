@@ -17,6 +17,10 @@ import java.util.List;
 public class CommonController {
     private final CommonService commonService;
 
+    /**
+     * @return category List - 카테고리 리스트 객체
+     * 드롭다운 리스트 구현을 위한 카테고리 조회
+     */
     @GetMapping("/category")
     public ResponseEntity<Object> getCategory() {
         List<Common> dto = commonService.getCategory();

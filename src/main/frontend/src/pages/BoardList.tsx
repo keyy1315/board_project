@@ -3,14 +3,13 @@ import newImage from "../images/new.gif";
 import { useBoardList } from "../hooks/useBoardList";
 import { useCategory } from "../hooks/useCategory";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { RequestBoardListState } from "../store/BoardListState";
-import { useState } from "react";
 
 export default function BoardList() {
   const navigate = useNavigate();
   const [request, setRequest] = useRecoilState(RequestBoardListState);
-
   const [searchText, setSearchText] = useState<string>("");
   const [searchCode, setsearchCode] = useState<string>("");
   const { boardList } = useBoardList(request);
@@ -27,12 +26,12 @@ export default function BoardList() {
   };
 
   const handleSearch = () => {
-    if (!searchText.trim()) {
+    if (!searchText.trim() && searchCode !== "all") {
       alert("검색어를 입력하세요");
       return;
     }
-    setRequest((p) => ({
-      ...p,
+    setRequest(prev => ({
+      ...prev,
       search: searchText,
       src_cd: searchCode,
     }));
@@ -110,7 +109,7 @@ export default function BoardList() {
         </table>
       </div>
       <div className="btn-box btm l">
-        <a href="#" className="btn btn-red fr" onClick={handleSearch}>
+        <a className="btn btn-red fr" onClick={handleSearch} style={{ cursor: "pointer" }}>
           검색
         </a>
       </div>
@@ -158,19 +157,19 @@ export default function BoardList() {
               <td>{b.category_cd}</td>
               <td className="l">
                 <a
-                  href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     navigate(`/board/${b.board_no}`);
                   }}
+                  style={{ cursor: "pointer" }}
                 >
                   {b.title}
                   {isNew(b.reg_dt) && <img src={newImage} className="new" />}
                 </a>
               </td>
               <td>
-                {b.file && (
-                  <a href="#" className="ic-file">
+                {b.files && b.files.length > 0 && (
+                  <a className="ic-file">
                     파일
                   </a>
                 )}
@@ -185,12 +184,12 @@ export default function BoardList() {
       <Paginate total={boardList.total} />
       <div className="btn-box l mt30">
         <a
-          href="#"
           onClick={(e) => {
             e.preventDefault();
             navigate("/board/write");
           }}
           className="btn btn-green fr"
+          style={{ cursor: "pointer" }}
         >
           등록
         </a>

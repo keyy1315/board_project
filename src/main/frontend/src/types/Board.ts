@@ -9,5 +9,5 @@ export interface Board {
     view_cnt : number,
     reg_dt : string,
     mod_dt : string | null,
-    file : File[] | null
+    files : File[] | null
 }

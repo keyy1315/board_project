@@ -1,15 +1,29 @@
-import { useEffect, useState } from "react";
-import { getBoard } from "../api/BoardApi";
+import { useState, useEffect, useRef } from "react";
 import type { Board } from "../types/Board";
 import Popup from "./Popup";
 import ReactModal from "react-modal";
 import { useNavigate } from "react-router-dom";
 import { Viewer } from "@toast-ui/react-editor";
+import { downloadFile } from "../api/FileApi";
+import { useAddViewCount, useBoard } from "../hooks/useBoard";
+
 
 export default function Board() {
-  const [board, setBoard] = useState<Board | null>();
+  const boardNo = Number(location.pathname.split("/").pop());
+  const { board } = useBoard(boardNo);
+  const hasCalled = useRef(false);
+
+  const { addViewCount } = useAddViewCount(boardNo);
+  useEffect(() => {
+    if (!hasCalled.current) {
+      addViewCount();
+      hasCalled.current = true;
+    }
+  }, [addViewCount]);
+
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
+
   const navigate = useNavigate();
 
   const handleOpenPopup = (e: React.MouseEvent) => {
@@ -21,24 +35,12 @@ export default function Board() {
     setIsPopupOpen(false);
   };
 
-  const board_no = Number(location.pathname.split("/").pop());
-  const fetchBoard = async (board_no: number) => {
-    try {
-      const data = await getBoard(board_no);
-      setBoard(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    if (board_no) {
-      fetchBoard(board_no);
-    }
-  }, [board_no]);
-
   const formatDate = (dateString: string) => {
     return dateString.replace("T", " ");
+  };
+
+  const handleFileClick = (file_no: number) => {
+    downloadFile(file_no);
   };
 
   return (
@@ -74,12 +76,21 @@ export default function Board() {
           <tr>
             <th className="fir">첨부파일</th>
             <td colSpan={3}>
-              {board?.file?.map((f) => (
-                <span>
-                  <a href="">{f.no}</a>
-                  <br />
-                </span>
-              ))}
+              {board?.files &&
+                board?.files.length > 0 &&
+                board?.files?.map((f) => (
+                  <span
+                    key={f.file_no}
+                    onClick={() => {
+                      handleFileClick(f.file_no);
+                    }}
+                  >
+                    <a className="ic-file2" style={{ cursor: "pointer" }}>
+                      {f.origin_file_nm}
+                    </a>
+                    <br />
+                  </span>
+                ))}
             </td>
           </tr>
         </tbody>

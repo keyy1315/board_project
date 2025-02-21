@@ -1,4 +1,3 @@
-import { RequestFile } from "./requestFile";
 
 export interface RequestBoard {
     board_no : number | null,
@@ -7,5 +6,6 @@ export interface RequestBoard {
     cont : string,
     writer_nm : string,
     password : string,
-    file : RequestFile[] | null
 }
+
+
