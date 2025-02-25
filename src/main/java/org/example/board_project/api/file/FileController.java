@@ -50,14 +50,6 @@ public class FileController {
         return ResponseEntity.ok().body(result);
     }
 
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> uploadFile(@RequestPart("image") MultipartFile file) throws IOException {
-        String uploadDIR = "C:\\Users\\SAMSUNG\\IdeaProjects\\board_project\\src\\main\\resources\\static\\upload\\";
-        File saveFile = new File(uploadDIR + file.getOriginalFilename());
-        file.transferTo(saveFile);
-        return ResponseEntity.ok().body(file.getOriginalFilename());
-    }
-
     @PostMapping("/img")
     public ResponseEntity<Object> uploadImg(
             @RequestPart("image") List<MultipartFile> files,
