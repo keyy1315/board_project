@@ -6,6 +6,7 @@ import org.example.board_project.exception.ErrorCode;
 import org.example.board_project.mapper.BoardMapper;
 import org.example.board_project.model.dto.requestDTO.board.BoardListRequestDTO;
 import org.example.board_project.model.dto.requestDTO.board.WriteBoardRequestDTO;
+import org.example.board_project.model.dto.requestDTO.file.ImageRequestDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardListResponseDTO;
 import org.example.board_project.model.dto.responseDTO.board.BoardResponseDTO;
 import org.example.board_project.model.Board;
@@ -19,6 +20,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,15 +80,14 @@ public class BoardService {
         if (boardMapper.saveBoard(dto) == 1) {
             Board board = boardMapper.findBoard(dto.getBoardNo());
 
-            List<String> urls = new ArrayList<>();
-            String regex = "!\\[.*?\\]\\((.*?)\\)";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(dto.getCont());
-            while (matcher.find()) {
-                urls.add(matcher.group(1));
+            List<String> urls = findImageLink(dto.getCont());
+            List<Boolean> result = fileService.updateBoardNo(urls, board.getBoard_no());
+            for (Boolean b : result) {
+                if(!b) throw new BoardException(
+                        ErrorCode.FAIL_TO_UPLOAD_FILE.getHttpStatus(),
+                        ErrorCode.FAIL_TO_UPLOAD_FILE.getMessage()
+                );
             }
-
-            fileService.updateBoardNo(urls, board.getBoard_no());
             return conversionBoardToDTO(Objects.requireNonNull(board));
         } else {
 //          저장되지 않았으면 throw BoardException (503)
@@ -128,6 +129,8 @@ public class BoardService {
                     ErrorCode.NONEXISTENT_BOARD.getMessage()
             );
         }
+        List<String> urls = findImageLink(dto.getCont());
+        fileService.updateImages(dto.getBoardNo(),urls);
 //      DTO null 값 체크
         DTONullChecker(dto);
 //      update 된 행이 한 개면 (update = true), board DTO 로 변환 후 반환
@@ -261,6 +264,17 @@ public class BoardService {
                 ErrorCode.DTO_OBJECT_IS_EMPTY.getHttpStatus(),
                 "Title is empty"
         );
+    }
+
+    public List<String> findImageLink(String content) {
+        List<String> urls = new ArrayList<>();
+        String regex = "!\\[.*?\\]\\((.*?)\\)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(content);
+        while (matcher.find()) {
+            urls.add(matcher.group(1));
+        }
+        return urls;
     }
 
 }

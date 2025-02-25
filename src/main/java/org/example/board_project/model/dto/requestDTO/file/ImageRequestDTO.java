@@ -13,9 +13,9 @@ import java.util.UUID;
 public class ImageRequestDTO {
     private int image_no;
     private String origin_nm;
-    private String url;
     private String save_nm;
     private int ref_pk;
+    private String url;
 
     public static ImageRequestDTO create(UUID uuid, String originalFilename, int boardNo, String savePath) {
         return ImageRequestDTO.builder()

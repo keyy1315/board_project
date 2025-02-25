@@ -32,6 +32,11 @@
         WHERE ref_pk = #{board_no}
     </delete>
 
+    <delete id="deleteImagesByBoardNo" parameterType="int">
+        DELETE FROM bt_tb_image
+        WHERE ref_pk = #{board_no}
+    </delete>
+
     <insert id="saveImage" parameterType="ImageRequestDTO">
         INSERT INTO bt_tb_image
         (origin_nm, save_nm, ref_pk, url)
@@ -44,4 +49,14 @@
         SET ref_pk = #{boardNo}
         WHERE url = #{url}
     </update>
+
+    <delete id="deleteImageByUrl" parameterType="string">
+        DELETE FROM bt_tb_image
+        WHERE url = #{url}
+    </delete>
+
+    <select id="findImagesWithBoardNo" resultType="ImageRequestDTO">
+        SELECT * FROM bt_tb_image
+        WHERE ref_pk = #{boardNo}
+    </select>
 </mapper>

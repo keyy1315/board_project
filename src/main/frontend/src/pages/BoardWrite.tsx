@@ -40,8 +40,6 @@ export default function BoardWrite() {
   });
 
   useEffect(() => {
-    console.log(board);
-
     if (boardNo && board) {
       setIsModify(true);
       setReqBoard({
@@ -152,7 +150,8 @@ export default function BoardWrite() {
           );
           if (response.board_no != null) {
             alert("게시글이 수정되었습니다.");
-            navigate(`/board/${response.board_no}`);
+            window.location.href = `/board/${response.board_no}`;
+            // navigate(`/board/${response.board_no}`);
           }
         } catch (error) {
           alert("게시글 수정에 실패했습니다.");
@@ -189,7 +188,7 @@ export default function BoardWrite() {
         }
       }
     },
-    [reqBoard, fileList, uploadFileList, deletedFileNos, navigate, setDeletedFileNos, setUploadFileList]
+    [reqBoard, fileList, uploadFileList, deletedFileNos, setDeletedFileNos, setUploadFileList]
   );
 
   const handleClickFile = useCallback((fileNo: number) => {
@@ -305,13 +304,11 @@ export default function BoardWrite() {
               <td>
                 <input
                   type="text"
+                  name="writer"
                   className="input block"
-                  value={board?.writer_nm}
+                  value={reqBoard.writer_nm}
                   readOnly={isModify}
-                  onChange={(e) =>
-                    handleInputChange("writer_nm", e.target.value)
-                  }
-                  // maxLength={50}
+                  onChange={(e) => handleInputChange("writer_nm", e.target.value)}
                 />
               </td>
               <th className="fir">

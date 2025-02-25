@@ -24,4 +24,10 @@ public interface FileMapper {
     int saveImage(ImageRequestDTO dto);
 
     int updateBoardNo(ImageBoardMappingDTO dto);
+
+    void deleteImagesByBoardNo(int no);
+
+    List<ImageRequestDTO> findImagesWithBoardNo(int boardNo);
+
+    int deleteImageByUrl(String url);
 }

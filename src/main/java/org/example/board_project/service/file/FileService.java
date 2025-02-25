@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 //@RequiredArgsConstructor
@@ -148,6 +149,7 @@ public class FileService {
 
     public void deleteFileByBoardNo(int no) {
         fileMapper.deleteFileByBoardNo(no);
+        fileMapper.deleteImagesByBoardNo(no);
     }
 
     public List<String> uploadImages(List<MultipartFile> file, int boardNo) throws IOException {
@@ -180,12 +182,24 @@ public class FileService {
         List<Boolean> result = new ArrayList<>();
         for (String url : urls) {
             ImageBoardMappingDTO dto = ImageBoardMappingDTO.create(url, boardNo);
-            if(fileMapper.updateBoardNo(dto) == 1) {
+            if (fileMapper.updateBoardNo(dto) == 1) {
                 result.add(true);
             } else {
                 result.add(false);
             }
         }
         return result;
+    }
+
+    public void updateImages(int boardNo, List<String> urls) {
+        List<ImageRequestDTO> images = fileMapper.findImagesWithBoardNo(boardNo);
+
+        List<String> dbUrls = images.stream().map(ImageRequestDTO::getUrl).toList();
+
+        List<String> deleteUrls = dbUrls.stream().filter(url -> urls.stream().noneMatch(url::equals)).toList();
+
+        for (String deleteUrl : deleteUrls) {
+            fileMapper.deleteImageByUrl(deleteUrl);
+        }
     }
 }
