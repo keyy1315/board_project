@@ -5,7 +5,7 @@ import { useCategory } from "../hooks/useCategory";
 import { writeBoard, updateBoard } from "../api/BoardApi";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import { RequestBoard } from "../types/request/requestBoard";
-import { downloadFile, deleteFile } from "../api/FileApi";
+import { downloadFile, deleteFile, uploadImage } from "../api/FileApi";
 import { useRecoilState } from "recoil";
 import {
   uploadFileListState,
@@ -29,8 +29,6 @@ export default function BoardWrite() {
   const [uploadFileList, setUploadFileList] =
     useRecoilState(uploadFileListState);
   const [isModify, setIsModify] = useState(false);
-  const [fileInputs, setFileInputs] = useState<{ [key: number]: boolean }>({});
-
 
   const [reqBoard, setReqBoard] = useState<RequestBoard>({
     board_no: null,
@@ -42,6 +40,8 @@ export default function BoardWrite() {
   });
 
   useEffect(() => {
+    console.log(board);
+
     if (boardNo && board) {
       setIsModify(true);
       setReqBoard({
@@ -59,7 +59,6 @@ export default function BoardWrite() {
       }
     }
   }, [board, boardNo, isModify, setIsModify, setReqBoard, setFileList]);
-
   const handleSubmit = useCallback(
     async (e: React.MouseEvent, isModify: boolean) => {
       e.preventDefault();
@@ -71,24 +70,56 @@ export default function BoardWrite() {
         )?.focus();
         return;
       }
+
+      if (!reqBoard?.password || reqBoard?.password?.length > 100) {
+        alert("비밀번호는 100자를 초과할 수 없습니다");
+        (
+          document.querySelector('input[type="password"]') as HTMLInputElement
+        )?.focus();
+        return;
+      }
+
       if (!reqBoard?.category_cd) {
         alert("카테고리를 선택하세요");
+        (
+          document.querySelector('select[name="category"]') as HTMLSelectElement
+        )?.focus();
         return;
       }
+
       if (!reqBoard?.title?.trim()) {
         alert("제목을 입력하세요");
+        (
+          document.querySelector('input[name="title"]') as HTMLInputElement
+        )?.focus();
         return;
       }
+
+      if (!reqBoard?.title || reqBoard.title.length > 200) {
+        alert("제목은 200자를 초과할 수 없습니다");
+        (
+          document.querySelector('input[name="title"]') as HTMLInputElement
+        )?.focus();
+        return;
+      }
+
       const editorContent = editorRef.current?.getInstance().getMarkdown();
       if (!editorContent?.trim()) {
         alert("내용을 입력하세요");
+        editorRef.current?.getInstance().focus();
         return;
       }
 
       if (fileList.length === 0 && uploadFileList.length === 0) {
         alert("첨부파일 1개 이상 첨부해주세요.");
+        (
+          document.querySelector('input[type="file"]') as HTMLInputElement
+        )?.focus();
         return;
       }
+      // 빈 파일 필터링
+      
+      setUploadFileList(uploadFileList.filter(file => file.name.trim()));
 
       // Check total file size
       const totalSize = uploadFileList.reduce(
@@ -102,6 +133,13 @@ export default function BoardWrite() {
       }
 
       if (isModify) {
+        setDeletedFileNos([...new Set(deletedFileNos)]);
+        console.log(deletedFileNos);
+
+        if (deletedFileNos.length > 0) {
+          const uniqueDeletedFileNos = [...new Set(deletedFileNos)];
+          setDeletedFileNos(uniqueDeletedFileNos);
+        }
         if (!confirm("게시글을 수정하시겠습니까?")) return;
         if (!reqBoard.board_no) return;
 
@@ -123,6 +161,17 @@ export default function BoardWrite() {
       } else {
         if (!reqBoard?.writer_nm?.trim()) {
           alert("작성자를 입력하세요");
+          (
+            document.querySelector('input[name="writer"]') as HTMLInputElement
+          )?.focus();
+          return;
+        }
+
+        if (!reqBoard?.writer_nm || reqBoard?.writer_nm?.length > 50) {
+          alert("작성자명은 50자를 초과할 수 없습니다");
+          (
+            document.querySelector('input[name="writer"]') as HTMLInputElement
+          )?.focus();
           return;
         }
 
@@ -140,7 +189,7 @@ export default function BoardWrite() {
         }
       }
     },
-    [reqBoard, fileList, uploadFileList, deletedFileNos, navigate]
+    [reqBoard, fileList, uploadFileList, deletedFileNos, navigate, setDeletedFileNos, setUploadFileList]
   );
 
   const handleClickFile = useCallback((fileNo: number) => {
@@ -175,21 +224,20 @@ export default function BoardWrite() {
         return;
       }
 
-      if (!fileInputs[index]) {
-        // 처음 파일 선택시
-        setFileInputs((prev) => ({ ...prev, [index]: true }));
-        setUploadFileList((prev) => [...prev, file]);
-        if (fileNo !== null) {
-          setDeletedFileNos((prev) => [...prev, fileNo]);
-        }
-      } else {
-        setUploadFileList((prev) => {
-          const newList = [...prev];
-          newList[index] = file;
-          return newList;
-        });
+      if (fileNo !== null && fileNo !== undefined) {
+        setDeletedFileNos((prev) => [...prev, fileNo]);
       }
-      // icon
+
+      setUploadFileList((prev) => {
+        const newList = [...prev];
+        while (newList.length < 3) {
+          newList.push(new File([], ''));
+        }
+        newList[index] = file;
+        return newList;
+      });
+
+      // 파일 입력 상태 업데이트
       const fileInput = e.target;
       const existingDeleteIcon =
         fileInput.parentNode?.querySelector("#input-delete-icon");
@@ -204,13 +252,12 @@ export default function BoardWrite() {
       deleteIcon.style.cursor = "pointer";
       deleteIcon.onclick = () => {
         setUploadFileList((prev) => prev.filter((_, i) => i !== index));
-        setFileInputs((prev) => ({ ...prev, [index]: false }));
         fileInput.value = ""; // Clear the file input
         deleteIcon.remove();
       };
       fileInput.parentNode?.appendChild(deleteIcon);
     },
-    [fileInputs, setUploadFileList, setDeletedFileNos]
+    [setUploadFileList, setDeletedFileNos]
   );
 
   const handleInputChange = useCallback(
@@ -221,6 +268,19 @@ export default function BoardWrite() {
           editorRef.current?.getInstance().getMarkdown() || "";
         setReqBoard((prev) => ({ ...prev, cont: markdownContent }));
       } else {
+        // Check field length limits
+        if (field === "writer_nm" && value.length > 50) {
+          alert("작성자명은 50자를 초과할 수 없습니다");
+          return;
+        }
+        if (field === "password" && value.length > 100) {
+          alert("비밀번호는 100자를 초과할 수 없습니다");
+          return;
+        }
+        if (field === "title" && value.length > 200) {
+          alert("제목은 200자를 초과할 수 없습니다");
+          return;
+        }
         setReqBoard((prev) => ({ ...prev, [field]: value }));
       }
     },
@@ -230,16 +290,6 @@ export default function BoardWrite() {
   return (
     <div>
       <div id="contents">
-        <div className="location">
-          <span className="ic-home">HOME</span>
-          <span>커뮤니티</span>
-          <em>통합게시판</em>
-        </div>
-
-        <div className="tit-area">
-          <h3 className="h3-tit">통합게시판</h3>
-        </div>
-
         <table className="write">
           <colgroup>
             <col style={{ width: "150px" }} />
@@ -261,6 +311,7 @@ export default function BoardWrite() {
                   onChange={(e) =>
                     handleInputChange("writer_nm", e.target.value)
                   }
+                  // maxLength={50}
                 />
               </td>
               <th className="fir">
@@ -274,6 +325,7 @@ export default function BoardWrite() {
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
+                  // maxLength={100}
                 />
               </td>
             </tr>
@@ -310,6 +362,7 @@ export default function BoardWrite() {
                   style={{ width: "100%" }}
                   value={reqBoard?.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
+                  // maxLength={200}
                 />
               </td>
             </tr>
@@ -327,6 +380,21 @@ export default function BoardWrite() {
                   initialEditType="markdown"
                   useCommandShortcut={true}
                   onChange={(e: string) => handleInputChange("cont", e)}
+                  hooks={{
+                    addImageBlobHook: (blob: Blob, callback: (url: string, alt: string) => void) => {
+                      const formData = new FormData();
+                      formData.append("image", blob);
+                    
+                      uploadImage(formData, board?.board_no ?? 0).then((r) => {
+                        if(r){
+                          callback(r, 'imageURL');
+                        }
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                      }); 
+                    }
+                  }}
                 />
               </td>
             </tr>

@@ -1,7 +1,6 @@
 package org.example.board_project.api.file;
 
 import lombok.RequiredArgsConstructor;
-import org.example.board_project.model.dto.requestDTO.file.ImageRequestDTO;
 import org.example.board_project.model.dto.responseDTO.file.GetOriginNameFileDTO;
 import org.example.board_project.service.file.FileService;
 import org.springframework.core.io.FileSystemResource;
@@ -14,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/file")
@@ -28,7 +29,7 @@ public class FileController {
      * - 다운로드 한 파일은 origin_file_nm 으로 저장됨
      */
     @GetMapping("/{file_no}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable int file_no) {
+    public ResponseEntity<Resource> downloadFile(@PathVariable int file_no) throws UnsupportedEncodingException {
         GetOriginNameFileDTO fileDTO = fileService.downloadFile(file_no);
 
         Resource resource = new FileSystemResource(fileDTO.getFile());
@@ -55,5 +56,14 @@ public class FileController {
         File saveFile = new File(uploadDIR + file.getOriginalFilename());
         file.transferTo(saveFile);
         return ResponseEntity.ok().body(file.getOriginalFilename());
+    }
+
+    @PostMapping("/img")
+    public ResponseEntity<Object> uploadImg(
+            @RequestPart("image") List<MultipartFile> files,
+            @RequestParam int boardNo
+    ) throws IOException {
+        List<String> urls = fileService.uploadImages(files, boardNo);
+        return ResponseEntity.ok().body(urls);
     }
 }

@@ -3,12 +3,12 @@ import { Board } from "../types/Board";
 import { getBoard, addViewCount as addViewCountApi } from "../api/BoardApi";
 
 export const useBoard = (board_no: number) => {
-  const { data: board } = useQuery<Board>({
+  const { data: board } = useQuery<Board | null>({
     queryKey: ["board", board_no],
     queryFn: () => getBoard(board_no),
     enabled: !!board_no
   });
-  return {board}; 
+  return { board }; 
 };
 
 export const useAddViewCount = (board_no: number) => {

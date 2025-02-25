@@ -19,6 +19,8 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +77,16 @@ public class BoardService {
 //      mapper 를 통해 저장된 데이터가 한 행이면 (저장되었으면) Board 객체 DTO 로 변환 후 반환
         if (boardMapper.saveBoard(dto) == 1) {
             Board board = boardMapper.findBoard(dto.getBoardNo());
+
+            List<String> urls = new ArrayList<>();
+            String regex = "!\\[.*?\\]\\((.*?)\\)";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(dto.getCont());
+            while (matcher.find()) {
+                urls.add(matcher.group(1));
+            }
+
+            fileService.updateBoardNo(urls, board.getBoard_no());
             return conversionBoardToDTO(Objects.requireNonNull(board));
         } else {
 //          저장되지 않았으면 throw BoardException (503)
@@ -92,6 +104,12 @@ public class BoardService {
      */
     public BoardResponseDTO findBoard(int no) {
         Board board = boardMapper.findBoard(no);
+        if(board == null) {
+            throw new BoardException(
+                    ErrorCode.NONEXISTENT_BOARD.getHttpStatus(),
+                    ErrorCode.NONEXISTENT_BOARD.getMessage()
+            );
+        }
         return conversionBoardToDTO(Objects.requireNonNull(board));
     }
 
@@ -142,6 +160,7 @@ public class BoardService {
         }
 //      delete 된 행의 개수가 1개면 (delete = true) true 반환
         if (boardMapper.deleteBoard(no) == 1) {
+            fileService.deleteFileByBoardNo(no);
             return true;
         } else {
 //          delete 되지 않았다면 BoardException 반환

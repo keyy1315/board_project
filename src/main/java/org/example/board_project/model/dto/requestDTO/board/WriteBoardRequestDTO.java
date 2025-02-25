@@ -1,9 +1,6 @@
 package org.example.board_project.model.dto.requestDTO.board;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * 글 작성/수정 요청할 때 전송하는 데이터 객체
@@ -17,7 +14,10 @@ public class WriteBoardRequestDTO {
     private String password;
     private String title;
     private String cont;
+
+    @Setter
     private String category_cd;
+
     private int boardNo;
 
 //    게시글 수정 시 게시글 번호와 새로운 내용 객체 생성을 위한 of 메소드

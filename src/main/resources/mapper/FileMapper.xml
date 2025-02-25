@@ -26,4 +26,22 @@
         DELETE FROM bt_tb_file
         WHERE file_no = #{file_no}
     </delete>
+
+    <delete id="deleteFileByBoardNo" parameterType="int">
+        DELETE FROM bt_tb_file
+        WHERE ref_pk = #{board_no}
+    </delete>
+
+    <insert id="saveImage" parameterType="ImageRequestDTO">
+        INSERT INTO bt_tb_image
+        (origin_nm, save_nm, ref_pk, url)
+        VALUES
+        (#{origin_nm}, #{save_nm}, #{ref_pk}, #{url})
+    </insert>
+
+    <update id="updateBoardNo" parameterType="ImageBoardMappingDTO">
+        UPDATE bt_tb_image
+        SET ref_pk = #{boardNo}
+        WHERE url = #{url}
+    </update>
 </mapper>

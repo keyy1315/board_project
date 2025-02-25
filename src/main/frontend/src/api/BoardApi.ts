@@ -10,10 +10,17 @@ export const getBoardList = async (requestBoardList: RequestBoardList) => {
   });
   return response.data;
 };
-
-export const getBoard = async (board_no: number): Promise<Board> => {
-  const response = await axios.get<Board>(`/api/board/${board_no}`);
-  return response.data;
+export const getBoard = async (board_no: number): Promise<Board | null> => {
+  try {
+    const response = await axios.get<Board>(`/api/board/${board_no}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      alert("존재하지 않는 게시글입니다.");
+      return null;
+    }
+    throw error;
+  }
 };
 
 export const writeBoard = async (board: RequestBoard, files: File[]) => {

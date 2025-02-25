@@ -13,10 +13,12 @@ import org.example.board_project.service.common.CommonService;
 import org.example.board_project.service.file.FileService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -78,6 +80,9 @@ public class BoardController {
             @RequestPart("dto") WriteBoardRequestDTO DTO,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> uploadFiles
     ) throws IOException {
+        uploadFiles.removeIf(file -> !StringUtils.hasText(file.getOriginalFilename()));
+
+        DTO.setCategory_cd(commonService.getCategoryCode(DTO.getCategory_cd()));
         BoardResponseDTO board = boardService.saveBoard(DTO);
         List<FileResponseDTO> files = fileService.uploadFiles(uploadFiles, DTO.getBoardNo(), DTO.getCategory_cd());
         board = BoardResponseDTO.of(board, files);
@@ -97,12 +102,15 @@ public class BoardController {
             @PathVariable int no,
             @RequestPart("dto") WriteBoardRequestDTO DTO,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> uploadFiles,
-            @RequestPart(value = "deleteFiles", required = false ) List<Integer> deleteFiles
+            @RequestPart(value = "deleteFiles", required = false) List<Integer> deleteFiles
     ) throws IOException {
         String category = commonService.getCategoryCode(DTO.getCategory_cd());
         WriteBoardRequestDTO dto = WriteBoardRequestDTO.of(no, DTO, category);
         BoardResponseDTO board = boardService.updateBoard(dto);
-        List<FileResponseDTO> files = fileService.updateFiles(deleteFiles, uploadFiles, no, category);
+        List<FileResponseDTO> files = new ArrayList<>();
+        if (uploadFiles != null) {
+            files = fileService.updateFiles(deleteFiles, uploadFiles, no, category);
+        }
         board = BoardResponseDTO.of(board, files);
         return ResponseEntity.ok().body(board);
     }

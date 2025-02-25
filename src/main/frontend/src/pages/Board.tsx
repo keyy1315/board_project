@@ -110,8 +110,7 @@ export default function Board() {
           onClick={(e) => {
             handleOpenPopup(e);
             setIsDelete(false);
-          }}
-        >
+          }}>
           수정
         </a>
         <a

@@ -135,9 +135,9 @@ export default function BoardList() {
           <col style={{ width: "60px" }} />
           <col style={{ width: "80px" }} />
           <col style={{ width: "auto" }} />
-          <col style={{ width: "80px" }} />
-          <col style={{ width: "80px" }} />
-          <col style={{ width: "80px" }} />
+          <col style={{ width: "70px" }} />
+          <col style={{ width: "100px" }} />
+          <col style={{ width: "70px" }} />
           <col style={{ width: "120px" }} />
         </colgroup>
         <thead>
@@ -152,33 +152,41 @@ export default function BoardList() {
           </tr>
         </thead>
         <tbody>
-          {boardList.boards.map((b, index) => (
-            <tr key={b.board_no}>
-              <td>{(request.page_no - 1) * request.page_size + index + 1}</td>
-              <td>{b.category_cd}</td>
-              <td className="l"
-               onClick={(e) => {
-                e.preventDefault();
-                navigate(`/board/${b.board_no}`);
-              }}
-              style={{ cursor: "pointer" }}>
-                <a>
-                  {b.title}
-                  {isNew(b.reg_dt) && <img src={newImage} className="new" />}
-                </a>
-              </td>
-              <td>
-                {b.files && b.files.length > 0 && (
-                  <a className="ic-file">
-                    파일
+          {boardList.boards.length > 0 ? (
+            boardList.boards.map((b, index) => (
+              <tr key={b.board_no}>
+                <td>{(request.page_no - 1) * request.page_size + index + 1}</td>
+                <td>{b.category_cd}</td>
+                <td className="l"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/board/${b.board_no}`);
+                }}
+                style={{ cursor: "pointer" }}>
+                  <a>
+                    {b.title}
+                    {isNew(b.reg_dt) && <img src={newImage} className="new" />}
                   </a>
-                )}
+                </td>
+                <td>
+                  {b.files && b.files.length > 0 && (
+                    <a className="ic-file">
+                      파일
+                    </a>
+                  )}
+                </td>
+                <td>{b.writer_nm}</td>
+                <td>{b.view_cnt}</td>
+                <td>{new Date(b.reg_dt).toISOString().split("T")[0]}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={7}>
+                <h3 className="text-center py-4">NO DATA...</h3>
               </td>
-              <td>{b.writer_nm}</td>
-              <td>{b.view_cnt}</td>
-              <td>{new Date(b.reg_dt).toISOString().split("T")[0]}</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
       <Paginate total={boardList.total} />

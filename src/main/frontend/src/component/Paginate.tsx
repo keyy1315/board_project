@@ -9,7 +9,18 @@ export default function Paginate({ total }: PaginateProps) {
   const [request, setRequest] = useRecoilState(RequestBoardListState);
   const totalPages = Math.ceil(total / request.page_size);
   const currentPage = request.page_no;
-  const pageNumbers = Array.from({length: totalPages}, (_, i) => i + 1);
+
+  // Calculate start and end page numbers for current group of 10 pages
+  const pageGroupSize = 10;
+  const currentGroup = Math.floor((currentPage - 1) / pageGroupSize);
+  const startPage = currentGroup * pageGroupSize + 1;
+  const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+  
+  // Create array of page numbers to display
+  const pageNumbers = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i
+  );
 
   const handlePageClick = (pageNo: number) => {
     setRequest(prev => ({...prev, page_no: pageNo}));
@@ -31,7 +42,8 @@ export default function Paginate({ total }: PaginateProps) {
         className="direction prev"
         onClick={(e) => {
           e.preventDefault();
-          if (currentPage > 1) handlePageClick(currentPage - 1);
+          const prevPage = Math.max(1, startPage - 1);
+          handlePageClick(prevPage);
         }}
       >
         이전
@@ -62,7 +74,8 @@ export default function Paginate({ total }: PaginateProps) {
         className="direction next"
         onClick={(e) => {
           e.preventDefault();
-          if (currentPage < totalPages) handlePageClick(currentPage + 1);
+          const nextPage = Math.min(totalPages, endPage + 1);
+          handlePageClick(nextPage);
         }}
       >
         다음

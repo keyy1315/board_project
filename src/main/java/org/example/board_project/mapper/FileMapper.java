@@ -2,6 +2,8 @@ package org.example.board_project.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.example.board_project.model.BoardFile;
+import org.example.board_project.model.dto.requestDTO.file.ImageBoardMappingDTO;
+import org.example.board_project.model.dto.requestDTO.file.ImageRequestDTO;
 import org.example.board_project.model.dto.responseDTO.file.FileResponseDTO;
 
 import java.util.List;
@@ -16,4 +18,10 @@ public interface FileMapper {
     List<FileResponseDTO> getFilesByBoardNo(int boardNo);
 //      파일 pk로 파일 삭제 쿼리
     int deleteFiles(Integer i);
+
+    void deleteFileByBoardNo(int no);
+
+    int saveImage(ImageRequestDTO dto);
+
+    int updateBoardNo(ImageBoardMappingDTO dto);
 }

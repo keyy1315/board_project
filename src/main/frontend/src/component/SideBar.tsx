@@ -31,7 +31,6 @@ export default function SideBar() {
         <div className="tit-area">
           <h3 className="h3-tit">통합게시판</h3>
         </div>
-        {/* <BoardList /> */}
         <Outlet />
       </div>
       <div className="float-right">
